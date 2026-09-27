@@ -1,0 +1,20 @@
+{
+  "$schema": "https://raw.githubusercontent.com/skifahrer/mapson/master/schema/v1/mapson.schema.json",
+  "_schemaVersion": 1,
+  "id": "0834FFB7-67BA-4327-87F2-E18AEE11B2FC",
+  "name": "OpenStreetMap",
+  "isBuiltIn": false,
+  "drawsRegions": false,
+  "isOnlineOnly": false,
+  "stack": [
+    {
+      "id": "0D1B0A2F-7CB7-42C2-9E48-A0005C72F202",
+      "name": "OSM",
+      "symbol": "map",
+      "role": "base",
+      "opacity": 1,
+      "isEnabled": true
+    }
+  ],
+  "styles": []
+}

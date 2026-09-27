@@ -1,0 +1,523 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/skifahrer/mapson/master/schema/v1/mapson.schema.json",
+  "title": "mapson v1",
+  "description": "One map as JSON: `required` keys must be present, others are optional, unknown ones ignored.",
+  "type": "object",
+  "required": ["id", "name", "stack", "styles", "isBuiltIn", "drawsRegions", "isOnlineOnly"],
+  "properties": {
+    "$schema": { "type": "string", "description": "The schema the file follows: this schema's $id." },
+    "_schemaVersion": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Absent means 0, a file from before versioning. Readers refuse a version newer than theirs."
+    },
+    "_signature": {
+      "type": "string",
+      "description": "Opaque: Riki Maps' mark on its own exports. Others leave it out, and drop it on edit."
+    },
+    "id": { "$ref": "#/$defs/uuid", "description": "The map's identity. Readers issue a fresh one on import." },
+    "name": { "type": "string", "description": "Shown in the map list." },
+    "stack": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/layer" },
+      "description": "The layers, index 0 drawn first (the base)."
+    },
+    "styles": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/style" },
+      "description": "Ways the map can be drawn. May be empty."
+    },
+    "isBuiltIn": {
+      "type": "boolean",
+      "description": "Whether the map ships with the app. Readers treat an imported map as false."
+    },
+    "drawsRegions": {
+      "type": "boolean",
+      "description": "Whether the map draws the downloaded region packages under its layers."
+    },
+    "isOnlineOnly": { "type": "boolean", "description": "Whether the map is never offered for offline download." },
+    "selectedStyleID": { "$ref": "#/$defs/uuid", "description": "The style being drawn; an id from `styles`." },
+    "defaultStyleID": { "$ref": "#/$defs/uuid", "description": "The style drawn first; an id from `styles`." },
+    "symbol": { "type": "string", "description": "SF Symbol name of the map's icon." },
+    "iconTintHex": { "type": "string", "description": "Colour behind the icon, `#RRGGBB`." },
+    "iconPicture": { "$ref": "#/$defs/base64", "description": "A PNG or JPEG worn in place of the icon." },
+    "hiddenFromPicker": { "type": "boolean" },
+    "esriServices": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/esriService" },
+      "description": "The Esri services this map's layers were taken from."
+    },
+    "sharedZoneID": { "type": "string", "description": "App-internal: the iCloud share the map lives in." },
+    "sharedStackID": { "$ref": "#/$defs/uuid", "description": "App-internal." },
+    "stackID": { "$ref": "#/$defs/uuid", "description": "The stack (group of maps) this map belongs to." },
+    "stackName": { "type": "string" },
+    "stackIcon": { "$ref": "#/$defs/stackIcon" },
+    "peerLink": { "$ref": "#/$defs/peerLink" },
+    "rikiSharedFeature": {
+      "$ref": "#/$defs/sharedFeature",
+      "description": "A place to open once the map is imported."
+    },
+    "rikiServiceProxies": {
+      "$ref": "#/$defs/stringMap",
+      "description": "Host → proxy URL prefix the map's layers are fetched through."
+    },
+    "rikiHeaders": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/stringMap" },
+      "description": "Host → header name → value, for the map's own layers only."
+    }
+  },
+  "$defs": {
+    "uuid": {
+      "type": "string",
+      "pattern": "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$"
+    },
+    "base64": {
+      "type": "string",
+      "pattern": "^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
+    },
+    "date": { "type": "number", "description": "Seconds since 2001-01-01T00:00:00Z." },
+    "stringMap": { "type": "object", "additionalProperties": { "type": "string" } },
+    "stringList": { "type": "array", "items": { "type": "string" } },
+
+    "layer": {
+      "type": "object",
+      "required": ["id", "name", "symbol", "role", "opacity", "source", "isEnabled"],
+      "properties": {
+        "id": { "$ref": "#/$defs/uuid" },
+        "name": { "type": "string" },
+        "symbol": { "type": "string", "description": "SF Symbol name." },
+        "role": {
+          "type": "string",
+          "enum": ["base", "overlay"],
+          "description": "`base` for index 0, `overlay` above it."
+        },
+        "opacity": { "type": "number", "minimum": 0, "maximum": 1 },
+        "source": { "$ref": "#/$defs/layerSource" },
+        "isEnabled": { "type": "boolean", "description": "Whether the layer paints." },
+        "hint": { "type": "string" },
+        "credits": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/credit" },
+          "description": "Whose data the layer draws."
+        },
+        "allowsOfflineDownload": { "type": "boolean" },
+        "isOfflineOnly": { "type": "boolean" },
+        "tileSizePixels": { "type": "integer" },
+        "minZoom": { "type": "integer", "minimum": 0 },
+        "vectorSourceLayers": { "$ref": "#/$defs/stringList" },
+        "tintHex": { "type": "string", "description": "Colour features are painted in, `#RRGGBB`." },
+        "iconTintHex": { "type": "string" },
+        "featureValueTints": { "$ref": "#/$defs/stringMap", "description": "Value → `#RRGGBB`." },
+        "lineWidthScale": { "type": "number" },
+        "pointSizeScale": { "type": "number" },
+        "pointLabel": { "type": "string", "description": "Text above each point; `{key}` is the feature's value." },
+        "pointIcon": { "type": "string" },
+        "pointInnerText": { "type": "string" },
+        "pointIconAlone": { "type": "boolean" },
+        "pointCirclePadding": { "type": "number" },
+        "pointHeadingKey": { "type": "string" },
+        "pointStacking": { "type": "string", "enum": ["overlap", "vertical", "horizontal", "diagonal"] },
+        "darkensInDarkMode": { "type": "boolean" },
+        "hidesRouteIcons": { "type": "boolean" },
+        "hidesTrails": { "type": "boolean" },
+        "drawsDetailedRailways": { "type": "boolean" },
+        "originURL": { "type": "string", "description": "Where the layer's features were fetched from." },
+        "referrer": { "type": "string" },
+        "requestHeaderNames": {
+          "$ref": "#/$defs/stringList",
+          "description": "Header names only; values travel in `rikiHeaders`."
+        },
+        "requestSetup": { "$ref": "#/$defs/requestSetup" },
+        "serverID": { "$ref": "#/$defs/uuid" },
+        "serverLayerID": { "type": "string" },
+        "connectivity": { "$ref": "#/$defs/layerConnectivity" },
+        "apiReading": { "$ref": "#/$defs/apiReading" },
+        "drawsLive": { "type": "boolean" },
+        "answersServerQueries": { "type": "boolean" },
+        "esriServiceID": { "$ref": "#/$defs/uuid", "description": "An id from the map's `esriServices`." },
+        "esriLayerID": { "type": "integer" },
+        "esriGroup": { "type": "string" },
+        "esriRenderer": { "$ref": "#/$defs/arcgisRenderer" },
+        "esriNaming": { "$ref": "#/$defs/esriNaming" },
+        "keepsServerColours": { "type": "boolean" },
+        "groupsFeatures": { "type": "boolean" },
+        "partialFeatureFile": { "type": "string", "description": "App-internal; dropped on import." },
+        "featureCount": { "type": "integer", "minimum": 0 },
+        "fetchingFeatures": { "type": "boolean" },
+        "hidesUntilItDraws": { "type": "boolean" },
+        "drawnRankBuckets": { "type": "integer" },
+        "drawnStride": { "type": "integer" },
+        "drawnNamesCanonical": { "type": "boolean" },
+        "drawnExtent": { "$ref": "#/$defs/geoBox" },
+        "drawnExtentMeasured": { "type": "boolean" },
+        "distinctFeatureColours": { "type": "boolean" },
+        "featureTintSeed": { "type": "integer" },
+        "featureCategories": { "type": "array", "items": { "$ref": "#/$defs/storedCategory" } },
+        "shownValues": { "$ref": "#/$defs/shownValues" },
+        "phoneTracks": { "$ref": "#/$defs/phoneTrackSource" },
+        "deviceData": { "$ref": "#/$defs/deviceDataSource" }
+      }
+    },
+
+    "layerSource": {
+      "type": "object",
+      "description": "Exactly one of `region`, `url`, `files`, `apple`.",
+      "oneOf": [
+        { "required": ["region"] },
+        { "required": ["url"] },
+        { "required": ["files"] },
+        { "required": ["apple"] }
+      ],
+      "properties": {
+        "region": {
+          "type": "object",
+          "required": ["overlay"],
+          "properties": {
+            "overlay": {
+              "type": "string",
+              "enum": ["cartography", "hillshading", "heightModel", "contoursRocks", "roadsPaths",
+                       "points", "boundaries", "water", "railways", "settlements",
+                       "hillshade", "terrain3D", "contours", "rocks", "trails", "pistes",
+                       "features", "roads"],
+              "description": "A region package. The last eight are legacy names, still read."
+            }
+          }
+        },
+        "url": {
+          "type": "object",
+          "required": ["template", "maxZoom", "format", "attribution"],
+          "properties": {
+            "template": { "type": "string", "description": "Tile or service URL, `{z}/{x}/{y}` for tiles." },
+            "maxZoom": { "type": "integer", "minimum": 0 },
+            "format": {
+              "type": "string",
+              "enum": ["raster", "vector", "wms", "arcgisImage", "arcgisQuery", "api"]
+            },
+            "attribution": { "type": "string" }
+          }
+        },
+        "files": {
+          "type": "object",
+          "required": ["paths", "bytes"],
+          "properties": {
+            "paths": {
+              "$ref": "#/$defs/stringList",
+              "description": "Files on the writer's device; not carried by a bare .mapson."
+            },
+            "bytes": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "apple": {
+          "type": "object",
+          "required": ["kind"],
+          "properties": {
+            "kind": { "type": "string", "enum": ["standard", "satellite", "hybrid"] }
+          }
+        }
+      }
+    },
+
+    "credit": {
+      "type": "object",
+      "required": ["holder"],
+      "properties": {
+        "holder": { "type": "string" },
+        "work": { "type": "string" },
+        "license": { "type": "string" },
+        "license_url": { "type": "string" },
+        "source_url": { "type": "string" },
+        "changes": { "type": "string" },
+        "copyright": { "type": "boolean", "description": "False when the holder is credited without ©." }
+      }
+    },
+
+    "style": {
+      "type": "object",
+      "required": ["id", "name", "symbol", "origin", "notes", "adjustments"],
+      "properties": {
+        "id": { "$ref": "#/$defs/uuid" },
+        "name": { "type": "string" },
+        "symbol": { "type": "string" },
+        "iconTintHex": { "type": "string" },
+        "iconPicture": { "$ref": "#/$defs/base64" },
+        "origin": { "$ref": "#/$defs/styleOrigin" },
+        "notes": { "type": "string" },
+        "adjustments": { "$ref": "#/$defs/styleAdjustments" },
+        "usesOfflineTiles": { "type": "boolean" },
+        "arrangement": { "$ref": "#/$defs/styleArrangement" }
+      }
+    },
+
+    "styleOrigin": {
+      "type": "object",
+      "description": "Exactly one of `builtIn`, `document`, `arrangement`.",
+      "oneOf": [
+        { "required": ["builtIn"] },
+        { "required": ["document"] },
+        { "required": ["arrangement"] }
+      ],
+      "properties": {
+        "builtIn": {
+          "type": "object",
+          "required": ["pipelineStyle"],
+          "properties": { "pipelineStyle": { "type": "string" } }
+        },
+        "document": {
+          "type": "object",
+          "required": ["fileName", "bytes", "layerCount"],
+          "properties": {
+            "fileName": { "type": "string" },
+            "bytes": { "type": "integer", "minimum": 0 },
+            "layerCount": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "arrangement": { "type": "object", "description": "No cartography of its own; always `{}`." }
+      }
+    },
+
+    "styleAdjustments": {
+      "type": "object",
+      "required": ["lineWidthScale", "labelSizeScale"],
+      "properties": {
+        "lineWidthScale": { "type": "number" },
+        "labelSizeScale": { "type": "number" },
+        "railVariant": { "type": "string", "enum": ["standard", "active", "maxSpeed", "gauge", "electrification"] },
+        "hidesRailMarks": { "type": "boolean" }
+      }
+    },
+
+    "styleArrangement": {
+      "type": "object",
+      "required": ["order", "hidden"],
+      "properties": {
+        "order": { "type": "array", "items": { "$ref": "#/$defs/uuid" }, "description": "Layer ids, base first." },
+        "hidden": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/uuid" },
+          "description": "Layer ids this style does not draw."
+        }
+      }
+    },
+
+    "esriService": {
+      "type": "object",
+      "required": ["id", "url", "name", "take", "published"],
+      "properties": {
+        "id": { "$ref": "#/$defs/uuid" },
+        "url": { "type": "string", "description": "The service root, …/MapServer." },
+        "name": { "type": "string" },
+        "take": { "type": "string", "enum": ["features", "live", "query", "image"] },
+        "published": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "name", "supportsQuery"],
+            "properties": {
+              "id": { "type": "integer" },
+              "name": { "type": "string" },
+              "geometryType": { "type": "string" },
+              "supportsQuery": { "type": "boolean" },
+              "groupName": { "type": "string" }
+            }
+          }
+        },
+        "readAt": { "$ref": "#/$defs/date" }
+      }
+    },
+
+    "peerLink": {
+      "type": "object",
+      "required": ["deviceID", "deviceName", "mapID"],
+      "properties": {
+        "deviceID": { "type": "string" },
+        "deviceName": { "type": "string" },
+        "model": { "type": "string" },
+        "mapID": { "$ref": "#/$defs/uuid" },
+        "hostLayerIDs": { "$ref": "#/$defs/stringMap" },
+        "usesInternetWhenAway": { "type": "boolean" }
+      }
+    },
+
+    "stackIcon": {
+      "type": "object",
+      "properties": {
+        "symbol": { "type": "string" },
+        "iconTintHex": { "type": "string" },
+        "iconPicture": { "$ref": "#/$defs/base64" }
+      }
+    },
+
+    "sharedFeature": {
+      "type": "object",
+      "required": ["name", "latitude", "longitude", "tags"],
+      "properties": {
+        "name": { "type": "string" },
+        "latitude": { "type": "number", "minimum": -90, "maximum": 90 },
+        "longitude": { "type": "number", "minimum": -180, "maximum": 180 },
+        "tags": { "$ref": "#/$defs/stringMap", "description": "OSM-style tags of the place." },
+        "regionID": { "type": "string" }
+      }
+    },
+
+    "geoBox": {
+      "type": "object",
+      "required": ["minLon", "minLat", "maxLon", "maxLat"],
+      "properties": {
+        "minLon": { "type": "number" },
+        "minLat": { "type": "number" },
+        "maxLon": { "type": "number" },
+        "maxLat": { "type": "number" }
+      }
+    },
+
+    "requestSetup": {
+      "type": "object",
+      "required": ["method", "body", "bodyType"],
+      "properties": {
+        "method": { "type": "string", "enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"] },
+        "body": { "type": "string" },
+        "bodyType": { "type": "string", "enum": ["json", "form", "text", "xml"] },
+        "cookies": { "$ref": "#/$defs/cookiePreflight" }
+      }
+    },
+
+    "cookiePreflight": {
+      "type": "object",
+      "required": ["isOn", "page", "seconds"],
+      "properties": {
+        "isOn": { "type": "boolean" },
+        "page": { "type": "string", "description": "Empty asks the address's own site." },
+        "seconds": { "type": "integer", "minimum": 0 }
+      }
+    },
+
+    "layerConnectivity": {
+      "type": "object",
+      "properties": {
+        "blocked": { "$ref": "#/$defs/stringList" },
+        "opened": { "$ref": "#/$defs/stringList" },
+        "overrides": { "type": "boolean" }
+      }
+    },
+
+    "apiReading": {
+      "type": "object",
+      "required": ["itemsPath", "spelling", "latitudeKey", "longitudeKey", "positionKey", "shownKeys"],
+      "properties": {
+        "itemsPath": { "type": "string", "description": "Dot path to the items; empty is the answer itself." },
+        "spelling": { "type": "string", "enum": ["decimal", "degreesMinutesSeconds", "position"] },
+        "latitudeKey": { "type": "string" },
+        "longitudeKey": { "type": "string" },
+        "positionKey": { "type": "string" },
+        "positionOrder": { "type": "string", "enum": ["latitudeFirst", "longitudeFirst"] },
+        "nameKey": { "type": "string" },
+        "colourKey": { "type": "string" },
+        "imageKey": { "type": "string" },
+        "headingKey": { "type": "string" },
+        "shownKeys": { "$ref": "#/$defs/stringList" },
+        "refreshSeconds": { "type": "integer", "minimum": 0 },
+        "cookies": { "$ref": "#/$defs/cookiePreflight" }
+      }
+    },
+
+    "arcgisSymbol": {
+      "type": "object",
+      "required": ["opacity", "outlineOpacity", "width"],
+      "properties": {
+        "color": { "type": "string" },
+        "opacity": { "type": "number" },
+        "outlineColor": { "type": "string" },
+        "outlineOpacity": { "type": "number" },
+        "width": { "type": "number" },
+        "size": { "type": "number" },
+        "imageData": { "$ref": "#/$defs/base64" }
+      }
+    },
+
+    "arcgisRenderer": {
+      "type": "object",
+      "required": ["classes"],
+      "properties": {
+        "field": { "type": "string" },
+        "defaultSymbol": { "$ref": "#/$defs/arcgisSymbol" },
+        "defaultLabel": { "type": "string" },
+        "classes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["value", "label", "symbol"],
+            "properties": {
+              "value": { "type": "string" },
+              "label": { "type": "string" },
+              "symbol": { "$ref": "#/$defs/arcgisSymbol" }
+            }
+          }
+        }
+      }
+    },
+
+    "esriNaming": {
+      "type": "object",
+      "properties": {
+        "displayField": { "type": "string" },
+        "language": { "type": "string" },
+        "isLanguageChosen": { "type": "boolean" }
+      }
+    },
+
+    "storedCategory": {
+      "type": "object",
+      "required": ["field", "value", "count"],
+      "properties": {
+        "field": { "type": "string" },
+        "value": { "type": "string" },
+        "count": { "type": "integer", "minimum": 0 }
+      }
+    },
+
+    "shownValues": {
+      "type": "object",
+      "required": ["field", "values"],
+      "properties": {
+        "field": { "type": "string" },
+        "values": { "$ref": "#/$defs/stringList" }
+      }
+    },
+
+    "phoneTrackSource": {
+      "type": "object",
+      "required": ["origin", "autoAdds"],
+      "properties": {
+        "origin": { "type": "string", "enum": ["tracklog", "health"] },
+        "newest": { "$ref": "#/$defs/date" },
+        "autoAdds": { "type": "boolean" },
+        "healthKind": {
+          "type": "object",
+          "required": ["raw"],
+          "properties": {
+            "raw": { "type": "integer", "minimum": 0, "description": "HKWorkoutActivityType raw value." }
+          }
+        },
+        "healthApp": { "type": "string" },
+        "announcesArrivals": { "type": "boolean" },
+        "sourceDevice": { "type": "string" },
+        "sourceDeviceName": { "type": "string" }
+      }
+    },
+
+    "deviceDataSource": {
+      "type": "object",
+      "required": ["origin", "albumIDs", "albumNames", "years"],
+      "properties": {
+        "origin": { "type": "string", "enum": ["photos", "contacts"] },
+        "albumIDs": { "$ref": "#/$defs/stringList" },
+        "albumNames": { "$ref": "#/$defs/stringList" },
+        "years": { "type": "array", "items": { "type": "integer" } },
+        "newest": { "$ref": "#/$defs/date" }
+      }
+    }
+  }
+}
