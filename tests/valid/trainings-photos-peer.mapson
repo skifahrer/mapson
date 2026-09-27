@@ -1,0 +1,83 @@
+{
+  "$schema": "https://raw.githubusercontent.com/skifahrer/mapson/master/schema/v1/mapson.schema.json",
+  "_schemaVersion": 1,
+  "id": "0834FFB7-67BA-4327-87F2-E18AEE11B2FC",
+  "name": "OpenStreetMap",
+  "isBuiltIn": false,
+  "drawsRegions": false,
+  "isOnlineOnly": false,
+  "stack": [
+    {
+      "id": "0D1B0A2F-7CB7-42C2-9E48-A0005C72F202",
+      "name": "OSM",
+      "symbol": "map",
+      "role": "base",
+      "opacity": 1,
+      "isEnabled": true,
+      "source": {
+        "url": {
+          "template": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+          "maxZoom": 19,
+          "format": "raster",
+          "attribution": "© OpenStreetMap contributors"
+        }
+      }
+    },
+    {
+      "id": "B2000000-0000-4000-8000-000000000010",
+      "name": "Runs",
+      "symbol": "figure.run",
+      "role": "overlay",
+      "opacity": 1,
+      "isEnabled": true,
+      "source": {
+        "files": {
+          "paths": [],
+          "bytes": 0
+        }
+      },
+      "phoneTracks": {
+        "origin": "health",
+        "autoAdds": true,
+        "healthKind": {
+          "raw": 37
+        },
+        "newest": 781234567.5,
+        "announcesArrivals": true
+      }
+    },
+    {
+      "id": "B2000000-0000-4000-8000-000000000011",
+      "name": "Photos",
+      "symbol": "photo",
+      "role": "overlay",
+      "opacity": 1,
+      "isEnabled": true,
+      "source": {
+        "files": {
+          "paths": [],
+          "bytes": 0
+        }
+      },
+      "deviceData": {
+        "origin": "photos",
+        "albumIDs": [],
+        "albumNames": [],
+        "years": [
+          2024,
+          2025
+        ]
+      }
+    }
+  ],
+  "styles": [],
+  "iconPicture": "iVBORw0KGgo=",
+  "peerLink": {
+    "deviceID": "abc",
+    "deviceName": "Ann's iPhone",
+    "mapID": "D4000000-0000-4000-8000-000000000001",
+    "hostLayerIDs": {
+      "0D1B0A2F-7CB7-42C2-9E48-A0005C72F202": "D4000000-0000-4000-8000-000000000002"
+    }
+  }
+}

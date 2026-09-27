@@ -1,0 +1,20 @@
+name: validate
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  schema:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install jsonschema
+      - name: Examples and valid cases pass
+        run: python3 tools/validate.py examples/*.mapson tests/valid/*.mapson
+      - name: Invalid cases fail
+        run: python3 tools/validate.py --expect-invalid tests/invalid/*.mapson
