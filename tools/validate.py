@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Validate .mapson files against the mapson schema.
+"""Validate .mapson and .serverson files against their schemas.
 
     pip install jsonschema
-    tools/validate.py my-map.mapson other.mapson
+    tools/validate.py my-map.mapson my-servers.serverson
     tools/validate.py --expect-invalid tests/invalid/*.mapson
 
+Each file is checked against the schema its extension names.
 Exits 1 when any file does not come out as expected.
 """
 import argparse
@@ -13,9 +14,30 @@ import pathlib
 import sys
 
 from jsonschema import Draft202012Validator
+from referencing import Registry, Resource
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-SCHEMA = ROOT / "schema" / "v1" / "mapson.schema.json"
+SCHEMAS = ROOT / "schema" / "v1"
+KINDS = {".mapson": "mapson", ".rikimap": "mapson", ".serverson": "serverson"}
+
+
+def load(name):
+    return json.loads((SCHEMAS / f"{name}.schema.json").read_text(encoding="utf-8"))
+
+
+def validators(override=None):
+    schemas = {name: load(name) for name in set(KINDS.values())}
+    if override:
+        schema = json.loads(pathlib.Path(override).read_text(encoding="utf-8"))
+        schemas = {name: schema for name in schemas}
+    # serverson's $refs point into mapson's $defs
+    registry = Registry().with_resources(
+        (schema["$id"], Resource.from_contents(schema)) for schema in schemas.values())
+    made = {}
+    for name, schema in schemas.items():
+        Draft202012Validator.check_schema(schema)
+        made[name] = Draft202012Validator(schema, registry=registry)
+    return made
 
 
 def issues(validator, path):
@@ -32,16 +54,15 @@ def main():
     parser.add_argument("files", nargs="+")
     parser.add_argument("--expect-invalid", action="store_true",
                         help="every file must FAIL validation")
-    parser.add_argument("--schema", default=str(SCHEMA))
+    parser.add_argument("--schema", help="check every file against this schema instead")
     args = parser.parse_args()
 
-    schema = json.loads(pathlib.Path(args.schema).read_text(encoding="utf-8"))
-    Draft202012Validator.check_schema(schema)
-    validator = Draft202012Validator(schema)
+    checking = validators(args.schema)
 
     failed = False
     for path in args.files:
-        found = issues(validator, path)
+        kind = KINDS.get(pathlib.Path(path).suffix.lower(), "mapson")
+        found = issues(checking[kind], path)
         if args.expect_invalid:
             ok = bool(found)
             print(f"{'ok  ' if ok else 'FAIL'} {path}: "

@@ -1,0 +1,215 @@
+{
+  "$schema": "https://raw.githubusercontent.com/skifahrer/mapson/master/schema/v1/serverson.schema.json",
+  "_schemaVersion": 1,
+  "exportedAt": 812400000,
+  "includesCredentials": true,
+  "servers": [
+    {
+      "id": "9A1F3B77-8E2C-4B0D-A5D6-3C4E5F607182",
+      "name": "ZBGIS",
+      "kind": "arcgis",
+      "url": "https://zbgis.skgeodesy.sk/mkzbgis/rest/services",
+      "referrer": "https://zbgis.skgeodesy.sk/",
+      "headerNames": [
+        "X-Api-Key"
+      ],
+      "requestSetup": {
+        "method": "GET",
+        "body": "",
+        "bodyType": "json",
+        "cookies": {
+          "isOn": true,
+          "page": "",
+          "seconds": 3600
+        }
+      },
+      "symbol": "globe",
+      "iconTintHex": "#2E7D32",
+      "format": "raster",
+      "minZoom": 0,
+      "maxZoom": 19,
+      "attribution": "© ÚGKK SR",
+      "credit": {
+        "holder": "ÚGKK SR",
+        "license": "CC BY 4.0",
+        "license_url": "https://creativecommons.org/licenses/by/4.0/",
+        "copyright": false
+      },
+      "allowsOffline": false,
+      "layers": [],
+      "publishedServices": [
+        {
+          "id": "https://zbgis.skgeodesy.sk/mkzbgis/rest/services/Kataster",
+          "name": "Kataster",
+          "type": "",
+          "isFolder": true,
+          "isDrawn": true,
+          "layers": [],
+          "facts": [],
+          "summary": "",
+          "readAt": 812345700,
+          "held": [
+            {
+              "id": "https://zbgis.skgeodesy.sk/mkzbgis/rest/services/Kataster/Parcely/MapServer",
+              "name": "Parcely",
+              "type": "MapServer",
+              "isFolder": false,
+              "isDrawn": true,
+              "layers": [
+                {
+                  "id": "0",
+                  "name": "Parcely C",
+                  "number": 0,
+                  "geometryType": "esriGeometryPolygon",
+                  "supportsQuery": true,
+                  "groupName": "Parcely",
+                  "minZoom": 14,
+                  "maxZoom": 20,
+                  "bounds": {
+                    "minLon": 16.8,
+                    "minLat": 47.7,
+                    "maxLon": 22.6,
+                    "maxLat": 49.6
+                  }
+                }
+              ],
+              "facts": [
+                {
+                  "name": "Max record count",
+                  "value": "1000"
+                }
+              ],
+              "held": [],
+              "summary": "Parcels of the cadastre",
+              "readAt": 812345710
+            }
+          ]
+        },
+        {
+          "id": "https://zbgis.skgeodesy.sk/mkzbgis/rest/services/Podklad/MapServer",
+          "name": "Podklad",
+          "type": "MapServer",
+          "isFolder": false,
+          "isDrawn": true,
+          "layers": [],
+          "facts": [],
+          "held": [],
+          "summary": "",
+          "failedAt": 812345720
+        }
+      ],
+      "facts": [
+        {
+          "name": "Version",
+          "value": "11.1"
+        }
+      ],
+      "readAt": 812345700,
+      "addedAt": 812300000
+    },
+    {
+      "id": "5E0B6C1A-2D34-4F7A-9C11-0A7B3E2D9F01",
+      "name": "OpenTopoMap",
+      "kind": "tiles",
+      "url": "https://tile.opentopomap.org/{z}/{x}/{y}.png",
+      "headerNames": [],
+      "symbol": "server.rack",
+      "format": "raster",
+      "maxZoom": 17,
+      "attribution": "© OpenTopoMap (CC-BY-SA)",
+      "allowsOffline": true,
+      "layers": [],
+      "facts": [],
+      "readAt": 812345678.5,
+      "addedAt": 812345600
+    },
+    {
+      "id": "C3D2E1F0-1111-4222-8333-944455566677",
+      "name": "Geoportal proxy",
+      "kind": "mapproxy",
+      "url": "https://proxy.example.test/service",
+      "headerNames": [],
+      "symbol": "arrow.left.arrow.right",
+      "format": "raster",
+      "maxZoom": 18,
+      "attribution": "",
+      "allowsOffline": true,
+      "layers": [
+        {
+          "id": "orto",
+          "name": "Orthophoto",
+          "supportsQuery": false,
+          "template": "https://proxy.example.test/wmts/orto/GLOBAL_WEBMERCATOR/{z}/{x}/{y}.jpeg",
+          "tileFormat": "raster",
+          "maxZoom": 20,
+          "summary": "2023 flight"
+        }
+      ],
+      "facts": [],
+      "readAt": 812345800,
+      "addedAt": 812345790
+    },
+    {
+      "id": "0d9c8b7a-6f5e-4d3c-8b2a-190817161514",
+      "name": "Trails",
+      "kind": "tilejson",
+      "url": "https://tiles.example.test/trails.json",
+      "tileTemplate": "https://tiles.example.test/trails/{z}/{x}/{y}.pbf",
+      "headerNames": [],
+      "symbol": "doc.text",
+      "format": "vector",
+      "minZoom": 6,
+      "maxZoom": 14,
+      "attribution": "© Trails",
+      "allowsOffline": true,
+      "layers": [
+        {
+          "id": "paths",
+          "name": "paths",
+          "supportsQuery": true
+        }
+      ],
+      "facts": [
+        {
+          "name": "Vector layers",
+          "value": "1"
+        }
+      ],
+      "addedAt": 812345900
+    },
+    {
+      "id": "7B6A5948-3726-4150-9F8E-7D6C5B4A3928",
+      "name": "Buses",
+      "kind": "api",
+      "url": "https://api.example.test/vehicles?token=abc123",
+      "headerNames": [
+        "Authorization"
+      ],
+      "requestSetup": {
+        "method": "POST",
+        "body": "{\"line\": 1}",
+        "bodyType": "json"
+      },
+      "symbol": "curlybraces",
+      "format": "api",
+      "maxZoom": 18,
+      "attribution": "",
+      "allowsOffline": false,
+      "layers": [],
+      "facts": [],
+      "readAt": 812346000,
+      "addedAt": 812345950
+    }
+  ],
+  "rikiHeaders": {
+    "zbgis.skgeodesy.sk": {
+      "X-Api-Key": "k-123"
+    },
+    "api.example.test": {
+      "Authorization": "Bearer xyz"
+    }
+  },
+  "rikiServiceProxies": {
+    "zbgis.skgeodesy.sk": "https://proxy.example.test/forward/"
+  }
+}
