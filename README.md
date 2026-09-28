@@ -77,15 +77,59 @@ sheet can say *"Verified · exported by Riki Maps"*. The mark is a UI hint, not 
   guessing, and Riki Maps does.
 - `$schema` names the schema a file follows. It is optional; writers should set it.
 
+## serverson
+
+A `.serverson` holds saved map servers instead of a map: their addresses, kinds, request
+settings, and everything they published when last read (layers, Esri services and folders,
+facts, zooms, bounds), each with the time of that read. It is a mapson extension: its schema
+reuses mapson's `$defs` by relative `$ref`.
+
+| | |
+|---|---|
+| Schema | [`schema/v1/serverson.schema.json`](schema/v1/serverson.schema.json) |
+| Schema URL | `https://raw.githubusercontent.com/skifahrer/mapson/master/schema/v1/serverson.schema.json` |
+| Examples | [`examples/minimal.serverson`](examples/minimal.serverson), [`examples/full.serverson`](examples/full.serverson) |
+| Media | UTF-8 JSON, extension `.serverson`, UTI `com.rikimaps.serverson` |
+
+```jsonc
+{
+  "$schema": "https://raw.githubusercontent.com/skifahrer/mapson/master/schema/v1/serverson.schema.json",
+  "_schemaVersion": 1,
+  "exportedAt": 812400000,
+  "includesCredentials": false,
+  "servers": [ /* in the writer's order */ ],
+  "rikiHeaders": { /* host → header → value, only when includesCredentials */ },
+  "rikiServiceProxies": { /* host → proxy prefix */ }
+}
+```
+
+| Object | Required keys |
+|---|---|
+| root | `exportedAt` `includesCredentials` `servers` |
+| server (`servers[]`) | `id` `name` `kind` `url` `headerNames` `symbol` `format` `maxZoom` `attribution` `allowsOffline` `layers` `facts` `addedAt` |
+| layer (`layers[]`) | `id` `name` `supportsQuery` |
+| service (`publishedServices[]`, `held[]`) | `id` `name` `type` `isFolder` `isDrawn` `layers` `facts` `held` `summary` |
+| fact | `name` `value` |
+
+`kind` is one of `arcgis` `tilejson` `tiles` `mapproxy` `api`. The value rules above apply.
+
+**Credentials are the writer's choice.** With `includesCredentials` false, the file has no
+`rikiHeaders`. Query keys such as `token`, `key` or `api_key` are also removed from every
+address. Header *names* stay, so the reader knows which values it must supply. A reader should
+name the hosts whose keys a file carries before importing it. It should also never replace a
+value the user already holds.
+
 ## Validating
 
 ```sh
 pip install jsonschema
-tools/validate.py my-map.mapson
+tools/validate.py my-map.mapson my-servers.serverson
 ```
 
+Each file is checked against the schema its extension names.
+
 Any 2020-12 validator works, for example Ajv:
-`new Ajv2020().compile(schema)` from `ajv/dist/2020`. The schema matches what Riki Maps' decoder
+`new Ajv2020().compile(schema)` from `ajv/dist/2020`. For serverson, `addSchema(mapson)` first. The schema matches what Riki Maps' decoder
 accepts, so a file that passes it imports there. `tests/valid/` and `tests/invalid/` hold the edge cases that CI
 checks.
 
@@ -93,6 +137,9 @@ In an editor, map `*.mapson` to JSON. VS Code then picks the schema up from the 
 `$schema` key.
 
 ## Security
+
+Riki Maps asks on every export whether keys go with the file. Without them, it leaves out
+`rikiHeaders` and the query keys in addresses.
 
 A `.mapson` can carry `rikiHeaders`, which are header values such as API keys for the
 map's own layers. It can also carry `rikiServiceProxies`. Readers should use either
