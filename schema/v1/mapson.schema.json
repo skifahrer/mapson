@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/skifahrer/mapson/master/schema/v1/mapson.schema.json",
+  "$id": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/mapson.schema.json",
   "title": "mapson v1",
   "description": "One map as JSON: `required` keys must be present, others are optional, unknown ones ignored.",
   "type": "object",

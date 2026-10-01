@@ -1,0 +1,9 @@
+{
+  "slovensko": {
+    "regions": {
+      "tatry": {
+        "maxzoom": 14.5
+      }
+    }
+  }
+}

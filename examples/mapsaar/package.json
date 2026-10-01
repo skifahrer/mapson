@@ -1,0 +1,13 @@
+{
+  "$schema" : "https:\/\/raw.githubusercontent.com\/skifahrer\/schemas\/master\/schema\/v1\/mapsaar.schema.json",
+  "items" : [
+    {
+      "cacheKey" : "C0FFEE00-1234-4ABC-8DEF-0123456789AB",
+      "files" : [
+        "files\/huts.geojson"
+      ],
+      "layerID" : "A4C3E1D2-5B6F-4A7E-8D9C-0B1A2C3D4E5F"
+    }
+  ],
+  "version" : 1
+}

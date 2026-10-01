@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "layerID": "A4C3E1D2-5B6F-4A7E-8D9C-0B1A2C3D4E5F",
+      "cacheKey": "C0FFEE00-1234-4ABC-8DEF-0123456789AB",
+      "files": [
+        "huts.geojson"
+      ]
+    }
+  ]
+}

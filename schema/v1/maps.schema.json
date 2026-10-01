@@ -1,0 +1,164 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/maps.schema.json",
+  "title": "maps.json v1",
+  "description": "The region catalog skifahrer/maptiles publishes: countries, their regions and subregions, and each one's downloadable packages. Keys starting with `_` are metadata; every other top-level key is a country.",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string", "description": "The schema the file follows: this schema's $id." },
+    "_comment": { "type": "string" },
+    "_updated_at": { "$ref": "#/$defs/isoDate", "description": "When the pipeline last wrote the catalog." },
+    "_updated_ts": { "type": "integer", "minimum": 0, "description": "The same instant, Unix seconds." }
+  },
+  "patternProperties": {
+    "^_": { "description": "Other catalog metadata. Readers ignore what they don't know." }
+  },
+  "additionalProperties": { "$ref": "#/$defs/area" },
+  "$defs": {
+    "area": {
+      "type": "object",
+      "description": "A country, region or subregion. A country names its `regions`; any area may name `subregions`.",
+      "properties": {
+        "name": { "type": "string" },
+        "drive": { "type": "string", "description": "Its folder on the pipeline's Drive." },
+        "updated_at": { "$ref": "#/$defs/isoDate" },
+        "updated_ts": { "type": "integer", "minimum": 0 },
+        "run": { "type": "string", "description": "The CI run that built it." },
+        "bbox": { "$ref": "#/$defs/bbox" },
+        "area_bbox": { "$ref": "#/$defs/bbox", "description": "The cut-out of a subregion or a quick test." },
+        "test_km2": { "type": "string", "description": "Only in maps-test.json: km² of terrain a quick test covers." },
+        "maxzoom": { "$ref": "#/$defs/zoom" },
+        "contours_maxzoom": { "$ref": "#/$defs/zoom" },
+        "contour_interval": { "type": "integer", "minimum": 1, "description": "Metres." },
+        "rocks_maxzoom": { "$ref": "#/$defs/zoom" },
+        "rock_slope": { "type": "integer", "minimum": 0, "description": "Degrees." },
+        "dem_source": { "type": "string" },
+        "rock_source": { "type": "string" },
+        "terrain_maxzoom": { "$ref": "#/$defs/zoom" },
+        "terrain_source": { "type": "string" },
+        "trails_maxzoom": { "$ref": "#/$defs/zoom" },
+        "features_maxzoom": { "$ref": "#/$defs/zoom" },
+        "points_maxzoom": { "$ref": "#/$defs/zoom" },
+        "transport_maxzoom": { "$ref": "#/$defs/zoom" },
+        "boundaries_maxzoom": { "$ref": "#/$defs/zoom" },
+        "water_maxzoom": { "$ref": "#/$defs/zoom" },
+        "rail_maxzoom": { "$ref": "#/$defs/zoom" },
+        "buildings_maxzoom": { "$ref": "#/$defs/zoom" },
+        "layers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Style layer names built for it; not packages."
+        },
+        "tiles": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "description": "Tile role (`pmtiles`, `contours`, `terrain`…) → path of its .pmtiles inside the package."
+        },
+        "maps": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/package" },
+          "description": "Package id (`base`, `contours-rocks`, `navigation`…) → the package."
+        },
+        "regions": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/area" },
+          "description": "Slug → region."
+        },
+        "subregions": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/area" },
+          "description": "Slug → cut-out."
+        }
+      }
+    },
+    "package": {
+      "type": "object",
+      "required": ["download"],
+      "description": "One downloadable package. Its top mirrors one of its `formats`, the ZIP where there is one, for older readers.",
+      "properties": {
+        "download": { "type": "string", "description": "Direct download URL." },
+        "file": { "type": "string" },
+        "link": { "type": "string", "description": "A page a person can open." },
+        "size": { "type": "integer", "minimum": 0, "description": "Bytes." },
+        "run": { "type": "string" },
+        "updated_at": { "$ref": "#/$defs/isoDate" },
+        "updated_ts": { "type": "number", "minimum": 0 },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "formats": {
+          "type": "object",
+          "properties": {
+            "aar": { "$ref": "#/$defs/variant" },
+            "zip": { "$ref": "#/$defs/variant" },
+            "pmtiles": { "$ref": "#/$defs/variant" }
+          },
+          "additionalProperties": { "$ref": "#/$defs/variant" },
+          "description": "Container format → the package in it. Readers pick the first they can open."
+        },
+        "app": { "type": "string", "description": "Name shown in the app, in English." },
+        "symbol": { "type": "string", "description": "SF Symbol name." },
+        "detail": { "type": "string", "description": "One line under the name, in English." },
+        "description": { "type": "string", "description": "The pipeline's own line about it." },
+        "part_of": { "type": "string", "description": "The package it also travels in." },
+        "translations": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/wording" },
+          "description": "Language (as the app's `.lproj` folders name it) → name and line."
+        },
+        "credits": {
+          "type": "array",
+          "items": { "$ref": "mapson.schema.json#/$defs/credit" },
+          "description": "Whose data it is."
+        },
+        "parts": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/part" },
+          "description": "Part id (`trails`, `routing`, `signs`) → what the package carries of it."
+        }
+      }
+    },
+    "variant": {
+      "type": "object",
+      "required": ["download"],
+      "properties": {
+        "download": { "type": "string" },
+        "format": { "type": "string", "description": "Absent: the key it sits under." },
+        "file": { "type": "string" },
+        "link": { "type": "string" },
+        "size": { "type": "integer", "minimum": 0 },
+        "run": { "type": "string" },
+        "updated_at": { "$ref": "#/$defs/isoDate" },
+        "updated_ts": { "type": "number", "minimum": 0 },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "part": {
+      "type": "object",
+      "properties": {
+        "files": { "type": "integer", "minimum": 0, "description": "0: the part is not in this build." },
+        "raw_size": { "type": "integer", "minimum": 0, "description": "Bytes before packing." },
+        "description": { "type": "string" }
+      }
+    },
+    "wording": {
+      "type": "object",
+      "properties": {
+        "app": { "type": "string" },
+        "detail": { "type": "string" }
+      }
+    },
+    "bbox": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 4,
+      "maxItems": 4,
+      "description": "`[west, south, east, north]` in degrees."
+    },
+    "zoom": { "type": "integer", "minimum": 0, "maximum": 30 },
+    "isoDate": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$",
+      "description": "ISO 8601, UTC."
+    },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  }
+}

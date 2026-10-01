@@ -1,0 +1,14 @@
+{
+  "slovensko": {
+    "regions": {
+      "tatry": {
+        "maps": {
+          "base": {
+            "download": "https://drive.google.com/uc?export=download&id=1abc",
+            "sha256": "7BAC9E2594ABC88E9591D923DE8B389D7D4723695AF84440CCAE5A35968F9325"
+          }
+        }
+      }
+    }
+  }
+}
