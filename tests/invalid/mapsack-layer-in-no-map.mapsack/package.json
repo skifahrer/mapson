@@ -1,0 +1,19 @@
+{
+  "$schema": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/mapsack.schema.json",
+  "version": 1,
+  "items": [
+    {
+      "layerID": "A4C3E1D2-5B6F-4A7E-8D9C-0B1A2C3D4E5F",
+      "cacheKey": "C0FFEE00-1234-4ABC-8DEF-0123456789AB",
+      "files": [
+        "files/huts.geojson"
+      ]
+    },
+    {
+      "layerID": "00000000-0000-4000-8000-000000000000",
+      "cacheKey": "B7E3A1C2-4D5E-4F60-8A9B-0C1D2E3F4A5B",
+      "tiles": "Trails.pmtiles",
+      "files": []
+    }
+  ]
+}

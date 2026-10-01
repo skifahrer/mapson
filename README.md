@@ -4,28 +4,42 @@ The file formats of Riki Maps and the skifahrer/maptiles pipeline, as JSON Schem
 This repository is their only home: the app and the pipeline pull the schemas from here when
 they need them and carry no copy.
 
+Three kinds of file, each holding one or more of what it is for:
+
 | Format | What it holds | Schema |
 |---|---|---|
-| [`.mapson`](#mapson) | one map as JSON: layers, styles, how each is drawn; no tiles | [`mapson.schema.json`](schema/v1/mapson.schema.json) |
-| [`.servson`](#servson) | saved map servers as JSON | [`servson.schema.json`](schema/v1/servson.schema.json) |
-| [`.mapszip`](#mapszip) | one map plus its layers' tiles and files, in one file | [`mapszip.schema.json`](schema/v1/mapszip.schema.json) (its manifest) |
-| [`.mapsaar`](#mapsaar) | the same, as an Apple Archive any Mac unpacks | [`mapsaar.schema.json`](schema/v1/mapsaar.schema.json) (its `package.json`) |
-| [`maps.json`](#mapsjson) | the region catalog the pipeline publishes | [`maps.schema.json`](schema/v1/maps.schema.json) |
+| [`.mapson`](#mapson) | one or more maps as JSON: settings, layers, their networks and styles; no downloaded data | [`mapson.schema.json`](schema/v1/mapson.schema.json) |
+| [`.servson`](#servson) | one or more servers as JSON, with their subservers, everything they published and, when chosen, their credentials | [`servson.schema.json`](schema/v1/servson.schema.json) |
+| [`.mapsack`](#mapsack) | maps with their downloaded data: a mapson plus tiles and feature files, as a folder | [`mapsack.schema.json`](schema/v1/mapsack.schema.json) (its `package.json`) |
 
-Maps are exported as `.mapson`, `.mapszip` or `.mapsaar`; servers as `.servson`. Every schema
-is published at `https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/<name>.schema.json`.
+A mapsack travels as one file, in either of two archives:
+
+| Archive | What it is | Schema |
+|---|---|---|
+| [`.mapszip`](#mapszip) | a mapsack in Riki Maps' own container, readable without unpacking | [`mapszip.schema.json`](schema/v1/mapszip.schema.json) (its manifest) |
+| [`.mapsaar`](#mapsaar) | a mapsack as an Apple Archive, which any Mac unpacks | none of its own: it is the mapsack's |
+
+And one the pipeline publishes:
+
+| | | |
+|---|---|---|
+| [`maps.json`](#mapsjson) | the region catalog skifahrer/maptiles publishes | [`maps.schema.json`](schema/v1/maps.schema.json) |
+
+Every schema is published at
+`https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/<name>.schema.json`.
 
 ## mapson
 
-Maps + JSON. Map exchange format: one map, as JSON. It holds the map's layers, its styles and how
-each layer is drawn. It does not hold tiles. Riki Maps reads and writes it as `.mapson`,
-and anyone else can too.
+Maps + JSON. One map, or several, as JSON: each map's settings, its layers and how each is
+fetched (addresses, request setups, proxies, keys when chosen) and drawn, and its styles. It
+holds no downloaded data; a [mapsack](#mapsack) does. Riki Maps reads and writes it as
+`.mapson`, and anyone else can too.
 
 | | |
 |---|---|
 | Schema | [`schema/v1/mapson.schema.json`](schema/v1/mapson.schema.json) (JSON Schema 2020-12) |
 | Schema URL | `https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/mapson.schema.json` |
-| Examples | [`examples/minimal.mapson`](examples/minimal.mapson), [`examples/full.mapson`](examples/full.mapson) |
+| Examples | [`examples/minimal.mapson`](examples/minimal.mapson), [`examples/full.mapson`](examples/full.mapson), [`examples/two-maps.mapson`](examples/two-maps.mapson) |
 | Media | UTF-8 JSON, extension `.mapson` (`.rikimap` is the legacy name), UTI `com.rikimaps.mapson` |
 
 ### Shape
@@ -47,7 +61,8 @@ names is **optional**. Here are the required ones:
 
 | Object | Required keys |
 |---|---|
-| map (root) | `id` `name` `stack` `styles` `isBuiltIn` `drawsRegions` `isOnlineOnly` |
+| map (root, or each of `maps[]`) | `id` `name` `stack` `styles` `isBuiltIn` `drawsRegions` `isOnlineOnly` |
+| collection (root with `maps`) | `_schemaVersion` (2) `maps` |
 | layer (`stack[]`) | `id` `name` `symbol` `role` `opacity` `source` `isEnabled` |
 | layer `source` | exactly one of `region` `url` `files` `apple` |
 | `source.url` | `template` `maxZoom` `format` `attribution` |
@@ -58,6 +73,24 @@ names is **optional**. Here are the required ones:
 
 The schema lists every nested object: Esri services, API readings, renderers,
 arrangements and the rest.
+
+### Several maps
+
+A file with `maps` is a collection. Each entry is a whole map, exactly as it would be written
+alone, signature and sidecars included:
+
+```jsonc
+{
+  "$schema": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/mapson.schema.json",
+  "_schemaVersion": 2,
+  "maps": [ { /* a map */ }, { /* another */ } ],
+  "rikiServiceProxies": { /* for every map; a map's own wins */ },
+  "rikiHeaders": { /* the same */ }
+}
+```
+
+A collection is `_schemaVersion` 2 and has at least one map. A writer with one map writes it
+alone, as version 1, so readers that know only one map still open it.
 
 ### Value rules
 
@@ -83,11 +116,13 @@ sheet can say *"Verified · exported by Riki Maps"*. The mark is a UI hint, not 
 - The signature covers the map, including `$schema`. It excludes `_schemaVersion`,
   `_signature` and the `riki*` sidecars (`rikiSharedFeature`, `rikiServiceProxies`,
   `rikiHeaders`), so those can change without touching it.
+- In a collection each map carries its own signature; a collection is verified only when
+  every map in it is.
 
 ### Versioning
 
 - `_schemaVersion` is the format version. If it is missing, the file is version 0 (written
-  before versioning), which reads the same as 1.
+  before versioning), which reads the same as 1. A collection is 2.
 - Adding an optional key does **not** change the version.
 - The version goes up only when an older reader would misread a file. That change gets
   a new `schema/vN/` file. A reader must refuse a version newer than it knows instead of
@@ -96,9 +131,10 @@ sheet can say *"Verified · exported by Riki Maps"*. The mark is a UI hint, not 
 
 ## servson
 
-Servers + JSON. A `.servson` holds saved map servers instead of a map: their addresses, kinds, request
-settings, and everything they published when last read (layers, Esri services and folders,
-facts, zooms, bounds), each with the time of that read. It is a mapson extension: its schema
+Servers + JSON. A `.servson` holds one or more saved map servers instead of maps: their
+addresses, kinds, request settings, their subservers (Esri folders and the services in them, to
+any depth), and everything they published when last read (layers, facts, zooms, bounds), each
+with the time of that read. With credentials when the writer chooses. It is a mapson extension: its schema
 reuses mapson's `$defs` by relative `$ref`.
 
 | | |
@@ -136,11 +172,48 @@ address. Header *names* stay, so the reader knows which values it must supply. A
 name the hosts whose keys a file carries before importing it. It should also never replace a
 value the user already holds.
 
+## mapsack
+
+Maps + sack: maps with the data they downloaded, as a folder. Its `map.mapson` is a mapson, one
+map or several; beside it are each layer's tiles and the files its layers read (features,
+GPX, GeoJSON, MBTiles…), and `package.json` says which belongs to which layer.
+
+| | |
+|---|---|
+| Schema | [`schema/v1/mapsack.schema.json`](schema/v1/mapsack.schema.json), for `package.json` |
+| Example | [`examples/huts.mapsack/`](examples/huts.mapsack) |
+| Media | a folder, extension `.mapsack`, UTI `com.rikimaps.mapsack` (a package: Files shows one item) |
+
+```
+map.mapson          the maps, a mapson
+package.json        which file belongs to which layer
+<layer>.pmtiles     one per tile store, named after the layer that first reads it
+files/<name>        files the layers read
+```
+
+```jsonc
+{
+  "$schema": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/mapsack.schema.json",
+  "version": 1,
+  "items": [
+    { "layerID": "…", "cacheKey": "…", "tiles": "Trails.pmtiles", "files": [] },
+    { "layerID": "…", "cacheKey": "…", "files": ["files/huts.geojson"] }
+  ]
+}
+```
+
+- `layerID` is a layer's `id` in any map of `map.mapson`.
+- Layers that read the same store, in one map or across maps, name the same `tiles`.
+- Every path `package.json` names must be in the mapsack.
+- A reader refuses a `version` newer than it knows.
+
+A folder is awkward to send, so a mapsack travels as an archive: a mapszip or a mapsaar. Both
+unpack to the same mapsack.
+
 ## mapszip
 
-Maps + zip: one map with the data its layers carry (tiles stores, GPX, GeoJSON, MBTiles…), in
-a single file. Despite the name it is not a ZIP archive but a small container of its own,
-readable without unpacking the whole of it.
+Maps + zip: a mapsack in one file. Despite the name it is not a ZIP archive but a small
+container of its own: a reader finds `map.mapson` at the front without unpacking the rest.
 
 | | |
 |---|---|
@@ -159,53 +232,31 @@ payload         each entry's bytes, in manifest order, nothing between or after
 ```jsonc
 { "entries": [
   { "path": "map.mapson", "size": 1520, "compressedSize": 702, "sha256": "…" },
-  { "path": "tiles/<cacheKey>/tiles.pmtiles", "size": 9000000, "compressedSize": 9000000,
+  { "path": "package.json", "size": 310, "compressedSize": 190, "sha256": "…" },
+  { "path": "Trails.pmtiles", "size": 9000000, "compressedSize": 9000000,
     "sha256": "…", "stored": true },
   { "path": "files/huts.geojson", "size": 277, "compressedSize": 190, "sha256": "…" }
 ] }
 ```
 
-- `map.mapson` is required: a mapson, as above.
-- `tiles/<cacheKey>/…` is a layer's tile store, `files/<name>` a file a layer reads. A reader
-  skips any other path, and refuses one that is absolute or holds `..`.
+- Each entry is a file of the mapsack, at its path there. `map.mapson` and `package.json` are
+  required and come first.
+- A reader refuses a path that is absolute or holds `..`.
 - An entry is LZFSE-compressed unless `stored` is true. Writers store what is already compressed
   (`.pmtiles`, images, `.zip`, `.gz`). `size` and `sha256` describe the unpacked bytes.
-- [`tools/pack-mapszip.py`](tools/pack-mapszip.py) writes one with every entry stored, which needs
-  no LZFSE.
+- [`tools/pack-mapszip.py`](tools/pack-mapszip.py) packs a mapsack folder with every entry
+  stored, which needs no LZFSE.
 
 ## mapsaar
 
-Maps + aar: the same content as a mapszip, as a compressed [Apple Archive](https://developer.apple.com/documentation/applearchive).
-Any Mac unpacks it with `aa extract -i Huts.mapsaar -d Huts`, and the layers' tiles come out as
-plain `.pmtiles` files that other tools open.
+Maps + aar: a mapsack as a compressed [Apple Archive](https://developer.apple.com/documentation/applearchive).
+Any Mac unpacks it with `aa extract -i Huts.mapsaar -d Huts.mapsack`, and the layers' tiles come
+out as plain `.pmtiles` files that other tools open. It has no schema of its own: what comes out
+is a mapsack.
 
 | | |
 |---|---|
-| Schema | [`schema/v1/mapsaar.schema.json`](schema/v1/mapsaar.schema.json), for `package.json` |
-| Example | [`examples/mapsaar/`](examples/mapsaar), unpacked |
 | Media | Apple Archive (LZFSE), extension `.mapsaar`, UTI `com.rikimaps.mapsaar` |
-
-```
-map.mapson          the map, a mapson
-package.json        which file belongs to which layer
-<layer>.pmtiles     one per layer with a tile store, named after the layer
-files/<name>        files the layers read
-```
-
-```jsonc
-{
-  "$schema": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/mapsaar.schema.json",
-  "version": 1,
-  "items": [
-    { "layerID": "…", "cacheKey": "…", "tiles": "Trails.pmtiles", "files": [] },
-    { "layerID": "…", "cacheKey": "…", "files": ["files/huts.geojson"] }
-  ]
-}
-```
-
-`layerID` is the layer's `id` in `map.mapson`. Every path `package.json` names must be in the
-archive. A reader refuses a `version` newer than it knows. Riki Maps' `.mappack` folder has the
-same layout, unarchived.
 
 ## maps.json
 
@@ -244,13 +295,13 @@ tools/validate.py my-map.mapson my-servers.servson my-map.mapszip maps.json
 ```
 
 Each file is checked against the schema its name says: its extension, `maps.json` or
-`*.maps.json` for the catalog, `package.json` or `*.package.json` for a mapsaar manifest. A
-mapszip is read as a container too: magic, version, sizes, every stored entry's sha256, and its
-`map.mapson` (packed entries need `pip install pyliblzfse`). A folder is read as an unpacked
-mapsaar; a `.mapsaar` itself is unpacked with `aa`, so only on a Mac.
+`*.maps.json` for the catalog, `package.json` or `*.package.json` for a mapsack manifest. A
+folder is read as a mapsack. A mapszip is read as a container (magic, version, sizes, every
+entry's sha256) and then as the mapsack it holds; packed entries need `pip install pyliblzfse`.
+A `.mapsaar` is unpacked with `aa`, so only on a Mac.
 
 Any 2020-12 validator works, for example Ajv: `new Ajv2020().compile(schema)` from
-`ajv/dist/2020`. For servson, mapsaar and maps.json, `addSchema(mapson)` first: they `$ref` its
+`ajv/dist/2020`. For servson, mapsack and maps.json, `addSchema(mapson)` first: they `$ref` its
 `$defs`. The schemas match what Riki Maps' decoders accept, so a file that passes imports there.
 `tests/valid/` and `tests/invalid/` hold the edge cases that CI checks.
 

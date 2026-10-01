@@ -1,0 +1,81 @@
+{
+  "$schema": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/mapson.schema.json",
+  "_schemaVersion": 2,
+  "maps": [
+    {
+      "$schema": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/mapson.schema.json",
+      "_schemaVersion": 1,
+      "id": "0834FFB7-67BA-4327-87F2-E18AEE11B2FC",
+      "name": "OpenStreetMap",
+      "isBuiltIn": false,
+      "drawsRegions": false,
+      "isOnlineOnly": false,
+      "stack": [
+        {
+          "id": "0D1B0A2F-7CB7-42C2-9E48-A0005C72F202",
+          "name": "OSM",
+          "symbol": "map",
+          "role": "base",
+          "opacity": 1,
+          "isEnabled": true,
+          "source": {
+            "url": {
+              "template": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+              "maxZoom": 19,
+              "format": "raster",
+              "attribution": "© OpenStreetMap contributors"
+            }
+          }
+        }
+      ],
+      "styles": []
+    },
+    {
+      "$schema": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/mapson.schema.json",
+      "_schemaVersion": 1,
+      "id": "6F1E2C3B-8A2D-4C55-9B61-1D2E3F405162",
+      "name": "Huts",
+      "isBuiltIn": false,
+      "drawsRegions": false,
+      "isOnlineOnly": false,
+      "stack": [
+        {
+          "id": "0D1B0A2F-7CB7-42C2-9E48-A0005C72F202",
+          "name": "OSM",
+          "symbol": "map",
+          "role": "base",
+          "opacity": 1,
+          "isEnabled": true,
+          "source": {
+            "url": {
+              "template": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+              "maxZoom": 19,
+              "format": "raster",
+              "attribution": "© OpenStreetMap contributors"
+            }
+          }
+        },
+        {
+          "id": "A4C3E1D2-5B6F-4A7E-8D9C-0B1A2C3D4E5F",
+          "name": "Huts",
+          "symbol": "house",
+          "role": "overlay",
+          "opacity": 1,
+          "isEnabled": true,
+          "source": {
+            "files": {
+              "paths": [
+                "huts.geojson"
+              ],
+              "bytes": 277
+            }
+          }
+        }
+      ],
+      "styles": []
+    }
+  ],
+  "rikiServiceProxies": {
+    "tile.openstreetmap.org": "https://proxy.example/fetch?url="
+  }
+}

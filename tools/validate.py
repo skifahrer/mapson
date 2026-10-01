@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Validate mapson, servson, mapszip, mapsaar and maps.json files against their schemas.
+"""Validate mapson, servson, mapsack, mapszip, mapsaar and maps.json files against their schemas.
 
     pip install jsonschema
-    tools/validate.py my-map.mapson my-servers.servson my-map.mapszip maps.json
+    tools/validate.py my-maps.mapson my-servers.servson Trip.mapsack Trip.mapszip maps.json
     tools/validate.py --expect-invalid tests/invalid/*
 
 Each file is checked against the schema its name says: by extension, or `maps.json` /
-`*.maps.json` for the catalog and `package.json` / `*.package.json` for a mapsaar manifest.
-A directory is read as an unpacked .mapsaar. Exits 1 when any file does not come out as expected.
+`*.maps.json` for the catalog and `package.json` / `*.package.json` for a mapsack manifest.
+A folder is read as a mapsack; a .mapszip or .mapsaar is unpacked into one first.
+Exits 1 when any file does not come out as expected.
 """
 import argparse
 import hashlib
@@ -24,7 +25,7 @@ from referencing import Registry, Resource
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SCHEMAS = ROOT / "schema" / "v1"
-NAMES = ("mapson", "servson", "mapszip", "mapsaar", "maps")
+NAMES = ("mapson", "servson", "mapszip", "mapsack", "maps")
 SUFFIXES = {".mapson": "mapson", ".rikimap": "mapson", ".servson": "servson",
             ".mapszip": "mapszip-file", ".mapsaar": "mapsaar-file"}
 MAGIC = b"RKZS"
@@ -42,7 +43,7 @@ def load(name):
 
 def validators(override=None):
     schemas = {name: load(name) for name in NAMES}
-    # servson, mapsaar and maps $ref mapson's $defs; registered under their real ids
+    # servson, mapsack and maps $ref mapson's $defs; registered under their real ids
     registry = Registry().with_resources(
         (schema["$id"], Resource.from_contents(schema)) for schema in schemas.values())
     if override:
@@ -58,11 +59,11 @@ def validators(override=None):
 def kind_of(path):
     name = path.name.lower()
     if path.is_dir():
-        return "mapsaar-dir"
+        return "mapsack-dir"
     if name in ("maps.json", "maps-test.json") or name.endswith(".maps.json"):
         return "maps"
     if name == "package.json" or name.endswith(".package.json"):
-        return "mapsaar"
+        return "mapsack"
     return SUFFIXES.get(path.suffix.lower(), "mapson")
 
 
@@ -80,7 +81,7 @@ def json_issues(validator, data, where=""):
 
 
 def mapszip_issues(checking, data):
-    """The container: magic, version, manifest, then each entry's bytes against it."""
+    """The container: magic, version, manifest and each entry; then the mapsack it holds."""
     if len(data) < 9 or data[:4] != MAGIC:
         return ["not a mapszip: no RKZS magic"]
     if data[4] not in CONTAINER_VERSIONS:
@@ -96,6 +97,7 @@ def mapszip_issues(checking, data):
     if found:
         return found
     offset = 9 + length
+    bodies = {}
     for entry in manifest["entries"]:
         raw = data[offset:offset + entry["compressedSize"]]
         offset += entry["compressedSize"]
@@ -106,48 +108,56 @@ def mapszip_issues(checking, data):
             continue
         if len(body) != entry["size"] or hashlib.sha256(body).hexdigest() != entry["sha256"]:
             found.append(f"{entry['path']}: size or sha256 differs from the manifest")
-        elif entry["path"] == "map.mapson":
-            found += json_issues(checking["mapson"], body, "map.mapson ")
+        else:
+            bodies[entry["path"]] = body
     if offset != len(data):
         found.append(f"{len(data) - offset} bytes after the last entry")
-    return found
+    if found or len(bodies) < len(manifest["entries"]):
+        return found
+    with tempfile.TemporaryDirectory() as folder:
+        for path, body in bodies.items():
+            target = pathlib.Path(folder, path)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(body)
+        return mapsack_issues(checking, pathlib.Path(folder))
 
 
 def unpacked(entry, raw):
     if entry.get("stored"):
         return raw
     if liblzfse is None:
-        if entry["path"] == "map.mapson":
-            print("     note: map.mapson is LZFSE-packed; pip install pyliblzfse to check it")
+        print(f"     note: {entry['path']} is LZFSE-packed; pip install pyliblzfse to check the mapsack")
         return None
     return liblzfse.decompress(raw)
 
 
-def mapsaar_dir_issues(checking, folder):
-    """An unpacked .mapsaar: map.mapson, package.json, and every file the manifest names."""
+def mapsack_issues(checking, folder):
+    """A mapsack: map.mapson, package.json, and every file the manifest names."""
     found = []
     for name in ("map.mapson", "package.json"):
         if not (folder / name).is_file():
             found.append(f"no {name}")
     if found:
         return found
-    found += json_issues(checking["mapson"], (folder / "map.mapson").read_bytes(), "map.mapson ")
+    mapson_data = (folder / "map.mapson").read_bytes()
+    found += json_issues(checking["mapson"], mapson_data, "map.mapson ")
     manifest_data = (folder / "package.json").read_bytes()
-    found += json_issues(checking["mapsaar"], manifest_data, "package.json ")
+    found += json_issues(checking["mapsack"], manifest_data, "package.json ")
     if found:
         return found
-    mapson = json.loads((folder / "map.mapson").read_bytes())
-    layer_ids = {str(layer.get("id", "")).upper() for layer in mapson.get("stack", [])}
+    mapson = json.loads(mapson_data)
+    maps = mapson["maps"] if "maps" in mapson else [mapson]
+    layer_ids = {str(layer.get("id", "")).upper() for one in maps for layer in one.get("stack", [])}
     for item in json.loads(manifest_data)["items"]:
         if item["layerID"].upper() not in layer_ids:
-            found.append(f"package.json: layer {item['layerID']} is not in map.mapson")
+            found.append(f"package.json: layer {item['layerID']} is in no map of map.mapson")
         for path in ([item["tiles"]] if "tiles" in item else []) + item["files"]:
             if not (folder / path).is_file():
-                found.append(f"package.json names {path}, which is not in the archive")
+                found.append(f"package.json names {path}, which is not in the mapsack")
     return found
 
 
-def mapsaar_file_issues(checking, path):
+def mapsaar_issues(checking, path):
     """Unpacked with Apple's `aa`, which only macOS has."""
     tool = shutil.which("aa")
     if not tool:
@@ -157,15 +167,15 @@ def mapsaar_file_issues(checking, path):
                               capture_output=True, text=True)
         if done.returncode:
             return [f"not an Apple Archive: {done.stderr.strip()}"]
-        return mapsaar_dir_issues(checking, pathlib.Path(folder))
+        return mapsack_issues(checking, pathlib.Path(folder))
 
 
 def issues(checking, path):
     kind = kind_of(path)
-    if kind == "mapsaar-dir":
-        return mapsaar_dir_issues(checking, path)
+    if kind == "mapsack-dir":
+        return mapsack_issues(checking, path)
     if kind == "mapsaar-file":
-        return mapsaar_file_issues(checking, path)
+        return mapsaar_issues(checking, path)
     try:
         data = path.read_bytes()
     except OSError as error:
