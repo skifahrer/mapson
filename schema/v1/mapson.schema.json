@@ -1,75 +1,111 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/mapson.schema.json",
-  "title": "mapson v1",
-  "description": "One map as JSON: `required` keys must be present, others are optional, unknown ones ignored.",
+  "title": "mapson v1–2",
+  "description": "One map, or several, as JSON: `required` keys must be present, others are optional, unknown ones ignored. A file with `maps` is a collection; any other is one map.",
   "type": "object",
-  "required": ["id", "name", "stack", "styles", "isBuiltIn", "drawsRegions", "isOnlineOnly"],
-  "properties": {
-    "$schema": { "type": "string", "description": "The schema the file follows: this schema's $id." },
-    "_schemaVersion": {
-      "type": "integer",
-      "minimum": 0,
-      "maximum": 1,
-      "description": "Absent means 0, a file from before versioning. Readers refuse a version newer than theirs."
-    },
-    "_signature": {
-      "type": "string",
-      "description": "Opaque: Riki Maps' mark on its own exports. Others leave it out, and drop it on edit."
-    },
-    "id": { "$ref": "#/$defs/uuid", "description": "The map's identity. Readers issue a fresh one on import." },
-    "name": { "type": "string", "description": "Shown in the map list." },
-    "stack": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/layer" },
-      "description": "The layers, index 0 drawn first (the base)."
-    },
-    "styles": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/style" },
-      "description": "Ways the map can be drawn. May be empty."
-    },
-    "isBuiltIn": {
-      "type": "boolean",
-      "description": "Whether the map ships with the app. Readers treat an imported map as false."
-    },
-    "drawsRegions": {
-      "type": "boolean",
-      "description": "Whether the map draws the downloaded region packages under its layers."
-    },
-    "isOnlineOnly": { "type": "boolean", "description": "Whether the map is never offered for offline download." },
-    "selectedStyleID": { "$ref": "#/$defs/uuid", "description": "The style being drawn; an id from `styles`." },
-    "defaultStyleID": { "$ref": "#/$defs/uuid", "description": "The style drawn first; an id from `styles`." },
-    "symbol": { "type": "string", "description": "SF Symbol name of the map's icon." },
-    "iconTintHex": { "type": "string", "description": "Colour behind the icon, `#RRGGBB`." },
-    "iconPicture": { "$ref": "#/$defs/base64", "description": "A PNG or JPEG worn in place of the icon." },
-    "hiddenFromPicker": { "type": "boolean" },
-    "esriServices": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/esriService" },
-      "description": "The Esri services this map's layers were taken from."
-    },
-    "sharedZoneID": { "type": "string", "description": "App-internal: the iCloud share the map lives in." },
-    "sharedStackID": { "$ref": "#/$defs/uuid", "description": "App-internal." },
-    "stackID": { "$ref": "#/$defs/uuid", "description": "The stack (group of maps) this map belongs to." },
-    "stackName": { "type": "string" },
-    "stackIcon": { "$ref": "#/$defs/stackIcon" },
-    "peerLink": { "$ref": "#/$defs/peerLink" },
-    "rikiSharedFeature": {
-      "$ref": "#/$defs/sharedFeature",
-      "description": "A place to open once the map is imported."
-    },
-    "rikiServiceProxies": {
-      "$ref": "#/$defs/stringMap",
-      "description": "Host → proxy URL prefix the map's layers are fetched through."
-    },
-    "rikiHeaders": {
-      "type": "object",
-      "additionalProperties": { "$ref": "#/$defs/stringMap" },
-      "description": "Host → header name → value, for the map's own layers only."
-    }
-  },
+  "if": { "required": ["maps"] },
+  "then": { "$ref": "#/$defs/collection" },
+  "else": { "$ref": "#/$defs/map" },
   "$defs": {
+    "map": {
+      "type": "object",
+      "description": "One map. On its own it is the whole file; in a collection, one entry of `maps`.",
+      "required": ["id", "name", "stack", "styles", "isBuiltIn", "drawsRegions", "isOnlineOnly"],
+      "properties": {
+        "$schema": { "type": "string", "description": "The schema the file follows: this schema's $id." },
+        "_schemaVersion": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Absent means 0, a file from before versioning. Readers refuse a version newer than theirs."
+        },
+        "_signature": {
+          "type": "string",
+          "description": "Opaque: Riki Maps' mark on its own exports. Others leave it out, and drop it on edit."
+        },
+        "id": { "$ref": "#/$defs/uuid", "description": "The map's identity. Readers issue a fresh one on import." },
+        "name": { "type": "string", "description": "Shown in the map list." },
+        "stack": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/layer" },
+          "description": "The layers, index 0 drawn first (the base)."
+        },
+        "styles": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/style" },
+          "description": "Ways the map can be drawn. May be empty."
+        },
+        "isBuiltIn": {
+          "type": "boolean",
+          "description": "Whether the map ships with the app. Readers treat an imported map as false."
+        },
+        "drawsRegions": {
+          "type": "boolean",
+          "description": "Whether the map draws the downloaded region packages under its layers."
+        },
+        "isOnlineOnly": { "type": "boolean", "description": "Whether the map is never offered for offline download." },
+        "selectedStyleID": { "$ref": "#/$defs/uuid", "description": "The style being drawn; an id from `styles`." },
+        "defaultStyleID": { "$ref": "#/$defs/uuid", "description": "The style drawn first; an id from `styles`." },
+        "symbol": { "type": "string", "description": "SF Symbol name of the map's icon." },
+        "iconTintHex": { "type": "string", "description": "Colour behind the icon, `#RRGGBB`." },
+        "iconPicture": { "$ref": "#/$defs/base64", "description": "A PNG or JPEG worn in place of the icon." },
+        "hiddenFromPicker": { "type": "boolean" },
+        "esriServices": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/esriService" },
+          "description": "The Esri services this map's layers were taken from."
+        },
+        "sharedZoneID": { "type": "string", "description": "App-internal: the iCloud share the map lives in." },
+        "sharedStackID": { "$ref": "#/$defs/uuid", "description": "App-internal." },
+        "stackID": { "$ref": "#/$defs/uuid", "description": "The stack (group of maps) this map belongs to." },
+        "stackName": { "type": "string" },
+        "stackIcon": { "$ref": "#/$defs/stackIcon" },
+        "peerLink": { "$ref": "#/$defs/peerLink" },
+        "rikiSharedFeature": {
+          "$ref": "#/$defs/sharedFeature",
+          "description": "A place to open once the map is imported."
+        },
+        "rikiServiceProxies": {
+          "$ref": "#/$defs/stringMap",
+          "description": "Host → proxy URL prefix the map's layers are fetched through."
+        },
+        "rikiHeaders": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/stringMap" },
+          "description": "Host → header name → value, for the map's own layers only."
+        }
+      }
+    },
+    "collection": {
+      "type": "object",
+      "description": "Several maps in one file. Each entry is a whole map, signed and carrying its sidecars as it would alone.",
+      "required": ["_schemaVersion", "maps"],
+      "properties": {
+        "$schema": { "type": "string", "description": "The schema the file follows: this schema's $id." },
+        "_schemaVersion": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 2,
+          "description": "2: a collection. Readers that know only 1 refuse it."
+        },
+        "maps": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/map" },
+          "description": "The maps, in the writer's order."
+        },
+        "rikiServiceProxies": {
+          "$ref": "#/$defs/stringMap",
+          "description": "Host → proxy URL prefix, for every map's layers; a map's own sidecar wins."
+        },
+        "rikiHeaders": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/stringMap" },
+          "description": "Host → header name → value, for every map's layers; a map's own sidecar wins."
+        }
+      }
+    },
     "uuid": {
       "type": "string",
       "pattern": "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$"

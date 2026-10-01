@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/mapsaar.schema.json",
-  "title": "mapsaar v1 package.json",
-  "description": "The `package.json` inside a .mapsaar: which file in the archive belongs to which layer of its `map.mapson`. The archive around it is described in README.md.",
+  "$id": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/mapspack.schema.json",
+  "title": "mapspack v1 package.json",
+  "description": "The `package.json` of a mapspack: which file in it belongs to which layer of its `map.mapson`, one map or several. A .mapszip or .mapsaar carries a mapspack; README.md describes both.",
   "type": "object",
   "required": ["version", "items"],
   "properties": {
@@ -16,7 +16,7 @@
     "items": {
       "type": "array",
       "items": { "$ref": "#/$defs/item" },
-      "description": "One per layer that brings data, drawn first first. Layers without data are left out."
+      "description": "One per layer that brings data, map by map, drawn first first. Layers without data are left out."
     }
   },
   "$defs": {
@@ -24,15 +24,15 @@
       "type": "object",
       "required": ["layerID", "cacheKey", "files"],
       "properties": {
-        "layerID": { "$ref": "mapson.schema.json#/$defs/uuid", "description": "The layer's `id` in map.mapson." },
+        "layerID": { "$ref": "mapson.schema.json#/$defs/uuid", "description": "The layer's `id` in map.mapson, in whichever of its maps holds it." },
         "cacheKey": {
           "$ref": "mapson.schema.json#/$defs/uuid",
-          "description": "The layer's tile store; layers that share one name it once."
+          "description": "The layer's tile store. Layers that share one, in one map or across maps, name the same `tiles`."
         },
         "tiles": {
           "type": "string",
           "pattern": "^[^/\\\\]+\\.pmtiles$",
-          "description": "The layer's tiles, a .pmtiles at the archive's root. Absent when it has none."
+          "description": "The layer's tiles, a .pmtiles at the mapspack's root. Absent when it has none."
         },
         "files": {
           "type": "array",
