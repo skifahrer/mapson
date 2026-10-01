@@ -106,7 +106,7 @@ reuses mapson's `$defs` by relative `$ref`.
 | Schema | [`schema/v1/servson.schema.json`](schema/v1/servson.schema.json) |
 | Schema URL | `https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/servson.schema.json` |
 | Examples | [`examples/minimal.servson`](examples/minimal.servson), [`examples/full.servson`](examples/full.servson) |
-| Media | UTF-8 JSON, extension `.servson` (`.serverson` is the legacy name), UTI `com.rikimaps.servson` |
+| Media | UTF-8 JSON, extension `.servson`, UTI `com.rikimaps.servson` |
 
 ```jsonc
 {
