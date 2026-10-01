@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/skifahrer/mapson/master/schema/v1/serverson.schema.json",
+  "$schema": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/servson.schema.json",
   "_schemaVersion": 1,
   "exportedAt": 812400000,
   "includesCredentials": false,
@@ -12,12 +12,12 @@
       "headerNames": [],
       "symbol": "server.rack",
       "format": "raster",
-      "maxZoom": 17,
+      "maxZoom": 17.5,
       "attribution": "© OpenTopoMap (CC-BY-SA)",
       "allowsOffline": true,
       "layers": [],
       "facts": [],
-      "readAt": "2026-09-28T10:00:00Z",
+      "readAt": 812345678.5,
       "addedAt": 812345600
     }
   ]

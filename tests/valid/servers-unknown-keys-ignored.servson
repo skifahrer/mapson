@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/skifahrer/mapson/master/schema/v1/serverson.schema.json",
+  "$schema": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/servson.schema.json",
   "_schemaVersion": 1,
   "exportedAt": 812400000,
   "includesCredentials": false,
@@ -18,12 +18,11 @@
       "layers": [],
       "facts": [],
       "readAt": 812345678.5,
-      "addedAt": 812345600
+      "addedAt": 812345600,
+      "alsoNew": true
     }
   ],
-  "rikiHeaders": {
-    "tile.opentopomap.org": {
-      "X-Api-Key": 42
-    }
+  "fromTheFuture": {
+    "x": 1
   }
 }

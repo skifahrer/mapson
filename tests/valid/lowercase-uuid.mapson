@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/skifahrer/mapson/master/schema/v1/mapson.schema.json",
+  "$schema": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/mapson.schema.json",
   "_schemaVersion": 1,
   "id": "0834ffb7-67ba-4327-87f2-e18aee11b2fc",
   "name": "OpenStreetMap",

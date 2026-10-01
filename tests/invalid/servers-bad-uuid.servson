@@ -1,11 +1,11 @@
 {
-  "$schema": "https://raw.githubusercontent.com/skifahrer/mapson/master/schema/v1/serverson.schema.json",
-  "_schemaVersion": 2,
+  "$schema": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/servson.schema.json",
+  "_schemaVersion": 1,
   "exportedAt": 812400000,
   "includesCredentials": false,
   "servers": [
     {
-      "id": "5E0B6C1A-2D34-4F7A-9C11-0A7B3E2D9F01",
+      "id": "{5E0B6C1A}",
       "name": "OpenTopoMap",
       "kind": "tiles",
       "url": "https://tile.opentopomap.org/{z}/{x}/{y}.png",

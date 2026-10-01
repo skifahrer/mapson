@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/skifahrer/mapson/master/schema/v1/serverson.schema.json",
+  "$schema": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/servson.schema.json",
   "_schemaVersion": 1,
   "exportedAt": 812400000,
   "includesCredentials": true,

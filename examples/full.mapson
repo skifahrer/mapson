@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/skifahrer/mapson/master/schema/v1/mapson.schema.json",
+  "$schema": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/mapson.schema.json",
   "_schemaVersion": 1,
   "id": "6F1C2E1A-3B55-4F0E-9D7A-1C2B3D4E5F60",
   "name": "Low Tatras summer",

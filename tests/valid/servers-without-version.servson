@@ -1,7 +1,7 @@
 {
-  "$schema": "https://raw.githubusercontent.com/skifahrer/mapson/master/schema/v1/serverson.schema.json",
-  "_schemaVersion": 1,
+  "$schema": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/servson.schema.json",
   "exportedAt": 812400000,
+  "includesCredentials": false,
   "servers": [
     {
       "id": "5E0B6C1A-2D34-4F7A-9C11-0A7B3E2D9F01",
