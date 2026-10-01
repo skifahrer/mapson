@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/mapszip.schema.json",
+  "title": "mapszip manifest",
+  "description": "The JSON manifest at the head of a .mapszip: one map and its layers' data in one file. The container around it is described in README.md.",
+  "type": "object",
+  "required": ["entries"],
+  "properties": {
+    "entries": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/entry" },
+      "contains": {
+        "type": "object",
+        "properties": { "path": { "const": "map.mapson" } },
+        "required": ["path"]
+      },
+      "description": "In payload order: each entry's bytes follow the previous one's. One is `map.mapson`."
+    }
+  },
+  "$defs": {
+    "entry": {
+      "type": "object",
+      "required": ["path", "size", "compressedSize", "sha256"],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/path",
+          "description": "`map.mapson`, `tiles/<layer cacheKey>/<file>` or `files/<file>`. Readers skip other paths."
+        },
+        "size": { "type": "integer", "minimum": 0, "description": "Bytes once unpacked." },
+        "compressedSize": { "type": "integer", "minimum": 0, "description": "Bytes in the payload." },
+        "sha256": { "$ref": "#/$defs/sha256", "description": "Of the unpacked bytes." },
+        "stored": {
+          "type": "boolean",
+          "description": "True: the bytes are stored as they are. Absent or false: LZFSE-compressed."
+        }
+      }
+    },
+    "path": {
+      "type": "string",
+      "pattern": "^(?!/)(?!.*(^|/)\\.\\.(/|$))[^\\\\]+$",
+      "description": "Relative, `/`-separated, never `..`."
+    },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  }
+}

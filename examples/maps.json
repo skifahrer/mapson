@@ -1,0 +1,188 @@
+{
+  "$schema": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/maps.schema.json",
+  "_comment": "Map catalog of finished maps on Google Drive – which there are and where. The top key is the country, under it `regions` and `subregions`; keys starting with `_` are catalog metadata, not countries. Written at the end of a build by workers/deploy/publish-map.py; never edited by hand.",
+  "_updated_at": "2026-10-01T09:35:59Z",
+  "_updated_ts": 1790847359,
+  "slovensko": {
+    "name": "Slovensko",
+    "regions": {
+      "banskobystricky": {
+        "bbox": [
+          18.46,
+          48.035,
+          20.49,
+          48.965
+        ],
+        "boundaries_maxzoom": 12,
+        "buildings_maxzoom": 14,
+        "contour_interval": 5,
+        "contours_maxzoom": 14,
+        "dem_source": "dmr5",
+        "drive": "slovensko/banskobystricky",
+        "features_maxzoom": 15,
+        "layers": [
+          "vrstevnice_dmr5_5m",
+          "skaly_dmr5",
+          "tienovanie_dmr5",
+          "trasy",
+          "prvky",
+          "doprava",
+          "hranice",
+          "vodstvo",
+          "zeleznice",
+          "sidla"
+        ],
+        "maps": {
+          "base": {
+            "app": "Base map",
+            "credits": [
+              {
+                "holder": "OpenStreetMap contributors",
+                "license": "ODbL 1.0",
+                "license_url": "https://opendatacommons.org/licenses/odbl/1-0/",
+                "source_url": "https://www.openstreetmap.org/copyright",
+                "work": "OpenStreetMap"
+              }
+            ],
+            "description": "celá kresba mapy z OSM – plochy, línie, popisy, značené trasy a index na offline hľadanie",
+            "detail": "Cartography, waymarked trails and landscape features, with water, boundaries, roads, railways, settlements and points as its parts",
+            "download": "https://drive.google.com/uc?export=download&id=1dL-FqT9ktc3IGn7DtypY_k--qKG_ox0k",
+            "file": "banskobystricky.zip",
+            "formats": {
+              "aar": {
+                "download": "https://drive.google.com/uc?export=download&id=1_12l1TYtSHuaIDB42mcXej43KBh2GrN7",
+                "file": "banskobystricky.aar",
+                "link": "https://drive.google.com/file/d/1_12l1TYtSHuaIDB42mcXej43KBh2GrN7/view",
+                "run": "271",
+                "sha256": "7bac9e2594abc88e9591d923de8b389d7d4723695af84440ccae5a35968f9325",
+                "size": 167844433,
+                "updated_at": "2026-09-29T13:04:45Z",
+                "updated_ts": 1790687085
+              },
+              "zip": {
+                "download": "https://drive.google.com/uc?export=download&id=1dL-FqT9ktc3IGn7DtypY_k--qKG_ox0k",
+                "file": "banskobystricky.zip",
+                "link": "https://drive.google.com/file/d/1dL-FqT9ktc3IGn7DtypY_k--qKG_ox0k/view",
+                "run": "271",
+                "sha256": "7bac9e2594abc88e9591d923de8b389d7d4723695af84440ccae5a35968f9325",
+                "size": 168792655,
+                "updated_at": "2026-09-29T12:58:31Z",
+                "updated_ts": 1790686711
+              }
+            },
+            "link": "https://drive.google.com/file/d/1dL-FqT9ktc3IGn7DtypY_k--qKG_ox0k/view",
+            "parts": {
+              "routing": {
+                "description": "smerovacia sieť so značkami (.pmtiles)",
+                "files": 1,
+                "raw_size": 13373883
+              },
+              "signs": {
+                "description": "značky krajiny pri trati a na ceste (sprite)",
+                "files": 4,
+                "raw_size": 10136
+              },
+              "trails": {
+                "description": "značené trasy z OSM relácií (.pmtiles)",
+                "files": 1,
+                "raw_size": 3931495
+              }
+            },
+            "run": "271",
+            "sha256": "7bac9e2594abc88e9591d923de8b389d7d4723695af84440ccae5a35968f9325",
+            "size": 168792655,
+            "symbol": "map.fill",
+            "translations": {
+              "sk": {
+                "app": "Základná mapa",
+                "detail": "Kartografia, značené trasy a krajina"
+              }
+            },
+            "updated_at": "2026-09-29T12:58:31Z",
+            "updated_ts": 1790686711
+          },
+          "contours-rocks": {
+            "app": "Contours & rock",
+            "credits": [
+              {
+                "holder": "Richard Dvorský",
+                "work": "Hillshading, 3D terrain, contours and rock faces"
+              },
+              {
+                "copyright": false,
+                "holder": "ÚGKK SR",
+                "license": "CC BY 4.0",
+                "license_url": "https://creativecommons.org/licenses/by/4.0/deed.sk",
+                "source_url": "https://www.geoportal.sk",
+                "work": "DMR 5.0 (LiDAR)"
+              }
+            ],
+            "description": "izolínie z výškového modelu a skalné plochy zo sklonu (.pmtiles)",
+            "detail": "Contour lines and rock faces",
+            "download": "https://drive.google.com/uc?export=download&id=1c_lu90ciJFWk-o0DkUNqwLvqxnRf4zXF",
+            "file": "banskobystricky-vrstevnice-skaly.zip",
+            "formats": {
+              "aar": {
+                "download": "https://drive.google.com/uc?export=download&id=1EyjcGnu-Vt17Zm40OqS-qIYolz4cNXMl",
+                "file": "banskobystricky-vrstevnice-skaly.aar",
+                "link": "https://drive.google.com/file/d/1EyjcGnu-Vt17Zm40OqS-qIYolz4cNXMl/view",
+                "run": "271",
+                "sha256": "aa5638c9e916c3c5042042b0ad28d89b67f305e2ae5bd3ee765e0cd354b908ab",
+                "size": 138570492,
+                "updated_at": "2026-09-29T13:04:45Z",
+                "updated_ts": 1790687085
+              },
+              "zip": {
+                "download": "https://drive.google.com/uc?export=download&id=1c_lu90ciJFWk-o0DkUNqwLvqxnRf4zXF",
+                "file": "banskobystricky-vrstevnice-skaly.zip",
+                "link": "https://drive.google.com/file/d/1c_lu90ciJFWk-o0DkUNqwLvqxnRf4zXF/view",
+                "run": "271",
+                "sha256": "aa5638c9e916c3c5042042b0ad28d89b67f305e2ae5bd3ee765e0cd354b908ab",
+                "size": 138488859,
+                "updated_at": "2026-09-29T12:58:31Z",
+                "updated_ts": 1790686711
+              }
+            },
+            "link": "https://drive.google.com/file/d/1c_lu90ciJFWk-o0DkUNqwLvqxnRf4zXF/view",
+            "run": "271",
+            "sha256": "aa5638c9e916c3c5042042b0ad28d89b67f305e2ae5bd3ee765e0cd354b908ab",
+            "size": 138488859,
+            "symbol": "chart.line.flattrend.xyaxis",
+            "updated_at": "2026-09-29T12:58:31Z",
+            "updated_ts": 1790686711
+          }
+        },
+        "maxzoom": 16,
+        "name": "Banskobystrický kraj",
+        "points_maxzoom": 15,
+        "rail_maxzoom": 15,
+        "rock_slope": 50,
+        "rock_source": "dmr5",
+        "rocks_maxzoom": 16,
+        "run": "271",
+        "terrain_maxzoom": 13,
+        "terrain_source": "dmr5",
+        "tiles": {
+          "boundaries": "tiles/banskobystricky-boundaries.pmtiles",
+          "buildings": "tiles/banskobystricky-buildings.pmtiles",
+          "contours": "tiles/banskobystricky-contours.pmtiles",
+          "features": "tiles/banskobystricky-features.pmtiles",
+          "pmtiles": "tiles/banskobystricky.pmtiles",
+          "points": "tiles/banskobystricky-points.pmtiles",
+          "rail": "tiles/banskobystricky-rail.pmtiles",
+          "rail_routing": "tiles/banskobystricky-rail-routing.pmtiles",
+          "rocks": "tiles/banskobystricky-rocks.pmtiles",
+          "terrain": "tiles/banskobystricky-terrain.pmtiles",
+          "trails": "tiles/banskobystricky-trails.pmtiles",
+          "transport": "tiles/banskobystricky-transport.pmtiles",
+          "water": "tiles/banskobystricky-water.pmtiles"
+        },
+        "trails_maxzoom": 14,
+        "transport_maxzoom": 14,
+        "updated_at": "2026-09-29T13:04:45Z",
+        "updated_ts": 1790687085,
+        "water_maxzoom": 14
+      }
+    }
+  }
+}
