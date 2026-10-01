@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Pack a mapsack folder into a .mapszip, every entry stored as it is.
+"""Pack a mapspack folder into a .mapszip, every entry stored as it is.
 
-    tools/pack-mapszip.py Trip.mapszip Trip.mapsack
+    tools/pack-mapszip.py Trip.mapszip Trip.mapspack
 """
 import hashlib
 import json
@@ -14,7 +14,7 @@ VERSION = 2
 
 
 def pack(out, entries):
-    """`entries` is `(path, bytes)`: a mapsack's files, `map.mapson` and `package.json` first."""
+    """`entries` is `(path, bytes)`: a mapspack's files, `map.mapson` and `package.json` first."""
     manifest = {"entries": [{"path": path, "size": len(body), "compressedSize": len(body),
                              "sha256": hashlib.sha256(body).hexdigest(), "stored": True}
                             for path, body in entries]}
@@ -25,7 +25,7 @@ def pack(out, entries):
             f.write(body)
 
 
-def mapsack_entries(folder):
+def mapspack_entries(folder):
     folder = pathlib.Path(folder)
     lead = ["map.mapson", "package.json"]
     rest = sorted(p.relative_to(folder).as_posix() for p in folder.rglob("*")
@@ -37,7 +37,7 @@ def mapsack_entries(folder):
 def main(args):
     if len(args) != 2:
         raise SystemExit(__doc__)
-    pack(args[0], mapsack_entries(args[1]))
+    pack(args[0], mapspack_entries(args[1]))
 
 
 if __name__ == "__main__":

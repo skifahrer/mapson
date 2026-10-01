@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/mapsack.schema.json",
+  "$schema": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/mapspack.schema.json",
   "version": 1,
   "items": [
     {
@@ -10,7 +10,7 @@
       ]
     },
     {
-      "layerID": "9A8B7C6D-5E4F-4321-8765-0FEDCBA98765",
+      "layerID": "00000000-0000-4000-8000-000000000000",
       "cacheKey": "B7E3A1C2-4D5E-4F60-8A9B-0C1D2E3F4A5B",
       "tiles": "Trails.pmtiles",
       "files": []

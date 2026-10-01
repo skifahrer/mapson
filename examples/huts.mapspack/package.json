@@ -1,5 +1,5 @@
 {
-  "$schema" : "https:\/\/raw.githubusercontent.com\/skifahrer\/schemas\/master\/schema\/v1\/mapsack.schema.json",
+  "$schema" : "https:\/\/raw.githubusercontent.com\/skifahrer\/schemas\/master\/schema\/v1\/mapspack.schema.json",
   "items" : [
     {
       "cacheKey" : "C0FFEE00-1234-4ABC-8DEF-0123456789AB",

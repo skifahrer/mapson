@@ -10,14 +10,14 @@ Three kinds of file, each holding one or more of what it is for:
 |---|---|---|
 | [`.mapson`](#mapson) | one or more maps as JSON: settings, layers, their networks and styles; no downloaded data | [`mapson.schema.json`](schema/v1/mapson.schema.json) |
 | [`.servson`](#servson) | one or more servers as JSON, with their subservers, everything they published and, when chosen, their credentials | [`servson.schema.json`](schema/v1/servson.schema.json) |
-| [`.mapsack`](#mapsack) | maps with their downloaded data: a mapson plus tiles and feature files, as a folder | [`mapsack.schema.json`](schema/v1/mapsack.schema.json) (its `package.json`) |
+| [`.mapspack`](#mapspack) | maps with their downloaded data: a mapson plus tiles and feature files, as a folder | [`mapspack.schema.json`](schema/v1/mapspack.schema.json) (its `package.json`) |
 
-A mapsack travels as one file, in either of two archives:
+A mapspack travels as one file, in either of two archives:
 
 | Archive | What it is | Schema |
 |---|---|---|
-| [`.mapszip`](#mapszip) | a mapsack in Riki Maps' own container, readable without unpacking | [`mapszip.schema.json`](schema/v1/mapszip.schema.json) (its manifest) |
-| [`.mapsaar`](#mapsaar) | a mapsack as an Apple Archive, which any Mac unpacks | none of its own: it is the mapsack's |
+| [`.mapszip`](#mapszip) | a mapspack in Riki Maps' own container, readable without unpacking | [`mapszip.schema.json`](schema/v1/mapszip.schema.json) (its manifest) |
+| [`.mapsaar`](#mapsaar) | a mapspack as an Apple Archive, which any Mac unpacks | none of its own: it is the mapspack's |
 
 And one the pipeline publishes:
 
@@ -32,7 +32,7 @@ Every schema is published at
 
 Maps + JSON. One map, or several, as JSON: each map's settings, its layers and how each is
 fetched (addresses, request setups, proxies, keys when chosen) and drawn, and its styles. It
-holds no downloaded data; a [mapsack](#mapsack) does. Riki Maps reads and writes it as
+holds no downloaded data; a [mapspack](#mapspack) does. Riki Maps reads and writes it as
 `.mapson`, and anyone else can too.
 
 | | |
@@ -172,17 +172,17 @@ address. Header *names* stay, so the reader knows which values it must supply. A
 name the hosts whose keys a file carries before importing it. It should also never replace a
 value the user already holds.
 
-## mapsack
+## mapspack
 
-Maps + sack: maps with the data they downloaded, as a folder. Its `map.mapson` is a mapson, one
+Maps + pack: maps with the data they downloaded, as a folder. Its `map.mapson` is a mapson, one
 map or several; beside it are each layer's tiles and the files its layers read (features,
 GPX, GeoJSON, MBTiles…), and `package.json` says which belongs to which layer.
 
 | | |
 |---|---|
-| Schema | [`schema/v1/mapsack.schema.json`](schema/v1/mapsack.schema.json), for `package.json` |
-| Example | [`examples/huts.mapsack/`](examples/huts.mapsack) |
-| Media | a folder, extension `.mapsack`, UTI `com.rikimaps.mapsack` (a package: Files shows one item) |
+| Schema | [`schema/v1/mapspack.schema.json`](schema/v1/mapspack.schema.json), for `package.json` |
+| Example | [`examples/huts.mapspack/`](examples/huts.mapspack) |
+| Media | a folder, extension `.mapspack`, UTI `com.rikimaps.mapspack` (a package: Files shows one item) |
 
 ```
 map.mapson          the maps, a mapson
@@ -193,7 +193,7 @@ files/<name>        files the layers read
 
 ```jsonc
 {
-  "$schema": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/mapsack.schema.json",
+  "$schema": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/mapspack.schema.json",
   "version": 1,
   "items": [
     { "layerID": "…", "cacheKey": "…", "tiles": "Trails.pmtiles", "files": [] },
@@ -204,15 +204,15 @@ files/<name>        files the layers read
 
 - `layerID` is a layer's `id` in any map of `map.mapson`.
 - Layers that read the same store, in one map or across maps, name the same `tiles`.
-- Every path `package.json` names must be in the mapsack.
+- Every path `package.json` names must be in the mapspack.
 - A reader refuses a `version` newer than it knows.
 
-A folder is awkward to send, so a mapsack travels as an archive: a mapszip or a mapsaar. Both
-unpack to the same mapsack.
+A folder is awkward to send, so a mapspack travels as an archive: a mapszip or a mapsaar. Both
+unpack to the same mapspack.
 
 ## mapszip
 
-Maps + zip: a mapsack in one file. Despite the name it is not a ZIP archive but a small
+Maps + zip: a mapspack in one file. Despite the name it is not a ZIP archive but a small
 container of its own: a reader finds `map.mapson` at the front without unpacking the rest.
 
 | | |
@@ -239,20 +239,20 @@ payload         each entry's bytes, in manifest order, nothing between or after
 ] }
 ```
 
-- Each entry is a file of the mapsack, at its path there. `map.mapson` and `package.json` are
+- Each entry is a file of the mapspack, at its path there. `map.mapson` and `package.json` are
   required and come first.
 - A reader refuses a path that is absolute or holds `..`.
 - An entry is LZFSE-compressed unless `stored` is true. Writers store what is already compressed
   (`.pmtiles`, images, `.zip`, `.gz`). `size` and `sha256` describe the unpacked bytes.
-- [`tools/pack-mapszip.py`](tools/pack-mapszip.py) packs a mapsack folder with every entry
+- [`tools/pack-mapszip.py`](tools/pack-mapszip.py) packs a mapspack folder with every entry
   stored, which needs no LZFSE.
 
 ## mapsaar
 
-Maps + aar: a mapsack as a compressed [Apple Archive](https://developer.apple.com/documentation/applearchive).
-Any Mac unpacks it with `aa extract -i Huts.mapsaar -d Huts.mapsack`, and the layers' tiles come
+Maps + aar: a mapspack as a compressed [Apple Archive](https://developer.apple.com/documentation/applearchive).
+Any Mac unpacks it with `aa extract -i Huts.mapsaar -d Huts.mapspack`, and the layers' tiles come
 out as plain `.pmtiles` files that other tools open. It has no schema of its own: what comes out
-is a mapsack.
+is a mapspack.
 
 | | |
 |---|---|
@@ -295,13 +295,13 @@ tools/validate.py my-map.mapson my-servers.servson my-map.mapszip maps.json
 ```
 
 Each file is checked against the schema its name says: its extension, `maps.json` or
-`*.maps.json` for the catalog, `package.json` or `*.package.json` for a mapsack manifest. A
-folder is read as a mapsack. A mapszip is read as a container (magic, version, sizes, every
-entry's sha256) and then as the mapsack it holds; packed entries need `pip install pyliblzfse`.
+`*.maps.json` for the catalog, `package.json` or `*.package.json` for a mapspack manifest. A
+folder is read as a mapspack. A mapszip is read as a container (magic, version, sizes, every
+entry's sha256) and then as the mapspack it holds; packed entries need `pip install pyliblzfse`.
 A `.mapsaar` is unpacked with `aa`, so only on a Mac.
 
 Any 2020-12 validator works, for example Ajv: `new Ajv2020().compile(schema)` from
-`ajv/dist/2020`. For servson, mapsack and maps.json, `addSchema(mapson)` first: they `$ref` its
+`ajv/dist/2020`. For servson, mapspack and maps.json, `addSchema(mapson)` first: they `$ref` its
 `$defs`. The schemas match what Riki Maps' decoders accept, so a file that passes imports there.
 `tests/valid/` and `tests/invalid/` hold the edge cases that CI checks.
 

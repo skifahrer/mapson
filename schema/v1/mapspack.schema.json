@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/mapsack.schema.json",
-  "title": "mapsack v1 package.json",
-  "description": "The `package.json` of a mapsack: which file in it belongs to which layer of its `map.mapson`, one map or several. A .mapszip or .mapsaar carries a mapsack; README.md describes both.",
+  "$id": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/mapspack.schema.json",
+  "title": "mapspack v1 package.json",
+  "description": "The `package.json` of a mapspack: which file in it belongs to which layer of its `map.mapson`, one map or several. A .mapszip or .mapsaar carries a mapspack; README.md describes both.",
   "type": "object",
   "required": ["version", "items"],
   "properties": {
@@ -32,7 +32,7 @@
         "tiles": {
           "type": "string",
           "pattern": "^[^/\\\\]+\\.pmtiles$",
-          "description": "The layer's tiles, a .pmtiles at the mapsack's root. Absent when it has none."
+          "description": "The layer's tiles, a .pmtiles at the mapspack's root. Absent when it has none."
         },
         "files": {
           "type": "array",

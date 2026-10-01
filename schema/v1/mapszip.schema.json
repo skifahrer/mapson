@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/skifahrer/schemas/master/schema/v1/mapszip.schema.json",
   "title": "mapszip manifest",
-  "description": "The JSON manifest at the head of a .mapszip: a mapsack, its maps and their data, in one file. README.md describes the container around it.",
+  "description": "The JSON manifest at the head of a .mapszip: a mapspack, its maps and their data, in one file. README.md describes the container around it.",
   "type": "object",
   "required": ["entries"],
   "properties": {
@@ -13,7 +13,7 @@
         { "contains": { "type": "object", "properties": { "path": { "const": "map.mapson" } }, "required": ["path"] } },
         { "contains": { "type": "object", "properties": { "path": { "const": "package.json" } }, "required": ["path"] } }
       ],
-      "description": "In payload order: each entry's bytes follow the previous one's. The entries are a mapsack's files."
+      "description": "In payload order: each entry's bytes follow the previous one's. The entries are a mapspack's files."
     }
   },
   "$defs": {
@@ -23,7 +23,7 @@
       "properties": {
         "path": {
           "$ref": "#/$defs/path",
-          "description": "A path in the mapsack: `map.mapson`, `package.json`, a `.pmtiles` or `files/<file>`."
+          "description": "A path in the mapspack: `map.mapson`, `package.json`, a `.pmtiles` or `files/<file>`."
         },
         "size": { "type": "integer", "minimum": 0, "description": "Bytes once unpacked." },
         "compressedSize": { "type": "integer", "minimum": 0, "description": "Bytes in the payload." },
