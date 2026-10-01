@@ -26,7 +26,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 SCHEMAS = ROOT / "schema" / "v1"
 NAMES = ("mapson", "servson", "mapszip", "mapsaar", "maps")
 SUFFIXES = {".mapson": "mapson", ".rikimap": "mapson", ".servson": "servson",
-            ".serverson": "servson", ".mapszip": "mapszip-file", ".zipson": "mapszip-file",
+            ".serverson": "servson", ".mapszip": "mapszip-file",
             ".mapsaar": "mapsaar-file"}
 MAGIC = b"RKZS"
 CONTAINER_VERSIONS = (1, 2)

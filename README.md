@@ -146,7 +146,7 @@ readable without unpacking the whole of it.
 |---|---|
 | Schema | [`schema/v1/mapszip.schema.json`](schema/v1/mapszip.schema.json), for the manifest |
 | Examples | [`examples/minimal.mapszip`](examples/minimal.mapszip), [`examples/huts.mapszip`](examples/huts.mapszip) |
-| Media | binary, extension `.mapszip` (`.zipson` is the legacy name), UTI `com.rikimaps.mapszip` |
+| Media | binary, extension `.mapszip`, UTI `com.rikimaps.mapszip` |
 
 ```
 "RKZS"          4 bytes, magic
